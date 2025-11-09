@@ -5,11 +5,13 @@ A browser-based playground for designing gradient-driven stacked tower geometrie
 ## Features
 - React + Vite + TypeScript scaffold with hot reload, linting, and OBJ exporting with vertex colors.
 - Three.js instanced floor slabs with gradient coloring from base to apex plus Bezier-driven scaling curves.
-- Custom controls panel for structure, scaling/twisting gradients, facade overlays, lighting presets, background colors, and saved parameter states.
-- Motion controls with optional auto-spin, adjustable speed, and a draggable Bezier graph editor for precise scaling curves.
-- Scene lighting presets (Studio, Daylight, Sunset, Noir, Cyber) for rapid presentation looks.
+- Custom controls panel for structure, scaling/twisting gradients, lighting presets, background colors, saved parameter states, facade overlays, and per-floor segment counts.
+- Bezier curve editor with draggable overlay window for sculpting the scale gradient curve.
+- Snapshot + OBJ export actions for quickly sharing renders or geometry (snapshots auto-increment their filenames).
+- Motion controls with optional auto-spin, adjustable speed, and tuned camera orbit/pan/zoom.
+- Scene lighting presets (Studio, Daylight, Sunset, Noir, Cyber) and background color picker for presentation-ready looks.
 - Saved state manager to capture multiple tower setups and switch between them instantly.
-- Responsive layout with infinite grid ground plane, mouse-based orbit/pan/zoom, and GitHub Pages-ready bundle.
+- Responsive layout with infinite ground grid, refined scroll separation between scene/menu, and GitHub Pages-ready bundle.
 
 ## Getting Started
 1. Install Node.js 18+.
@@ -31,27 +33,25 @@ A browser-based playground for designing gradient-driven stacked tower geometrie
 - **Facade Structure**: toggle white guide curves that trace each slab segment to visualize facade mullions.
 - **Motion**: toggle auto-spin, adjust spin speed, and view the tower center.
 - **Background**: set the canvas background color.
-- **Export & States**: export OBJ files (with vertex colors), save parameter states, and switch between them.
+- **Export & States**: export OBJ files (with vertex colors), capture PNG snapshots, save parameter states, and switch between them.
 
 ## Deployment
-1. **Local build**
+1. **Build locally**
    ```bash
+   npm install
    npm run build
    ```
-   The optimized output is emitted to `dist/`.
-2. **GitHub Pages**
-   - Build with relative paths:
-     ```bash
-     npx vite build --base=./
-     ```
-   - Copy the contents of `dist/` onto the `gh-pages` branch (or publish using your preferred workflow) and push it:
-     ```bash
-     git switch gh-pages
-     cp -R dist/* .
-     touch .nojekyll
-     git add -A && git commit -m "deploy: gh-pages" && git push origin gh-pages
-     ```
-   - Enable GitHub Pages in the repository settings and point it to the `gh-pages` branch.
-
-### Live Demo
-- GitHub Pages: https://siminaioa.github.io/251108_ParametricTower/
+   The optimized output lands in `dist/`.
+2. **Publish to GitHub Pages**
+   ```bash
+   npx vite build --base=./
+   git switch gh-pages
+   cp -R dist/* .
+   touch .nojekyll
+   git add -A
+   git commit -m "deploy: gh-pages"
+   git push origin gh-pages
+   ```
+   Finally, ensure GitHub Pages targets the `gh-pages` branch.
+3. **Live demo**
+   - https://siminaioa.github.io/251108_ParametricTower/
