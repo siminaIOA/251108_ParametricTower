@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Grid, OrbitControls } from '@react-three/drei';
 import { MOUSE } from 'three';
@@ -66,17 +66,14 @@ const App = () => {
   const [isBezierEditorOpen, setBezierEditorOpen] = useState(false);
   const [savedStates, setSavedStates] = useState<SavedState[]>([]);
   const [selectedStateId, setSelectedStateId] = useState<number | ''>('');
-  const [gravityProgress, setGravityProgress] = useState(0);
-  const [gravityActive, setGravityActive] = useState(false);
-  const gravityFrameRef = useRef<number | null>(null);
+  const towerGeometry = useTowerGeometry(params);
+
   const gridOffset = useMemo(() => -(params.floorCount * params.floorHeight) * 0.5 - 0.01, [params.floorCount, params.floorHeight]);
   const spinTarget = useMemo<[number, number, number]>(
     () => [0, -(params.floorCount * params.floorHeight) * 0.5 + params.floorHeight * 0.5, 0],
     [params.floorCount, params.floorHeight],
   );
   const lighting = lightingPresets[params.sceneLighting] ?? lightingPresets.studio;
-  const gravityGroundY = useMemo(() => gridOffset + params.floorHeight * 0.5, [gridOffset, params.floorHeight]);
-  const towerGeometry = useTowerGeometry(params, gravityProgress, gravityGroundY);
 
   const handleReset = () => {
     setParams(createDefaultTowerParameters());
@@ -105,6 +102,28 @@ const App = () => {
     const result = serializeGeometryAsOBJ(towerGeometry);
     downloadBlob(result, 'parametric_tower.obj', 'text/plain');
   }, [towerGeometry, downloadBlob]);
+
+  const snapshotCounterRef = useRef(1);
+
+  const handleSnapshot = useCallback(() => {
+    const canvas = document.querySelector<HTMLCanvasElement>('canvas');
+    if (!canvas) {
+      return;
+    }
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        return;
+      }
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      const count = snapshotCounterRef.current;
+      snapshotCounterRef.current += 1;
+      anchor.href = url;
+      anchor.download = `251108_ParametricTower_${count}.png`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    }, 'image/png');
+  }, []);
 
   const handleToggleScaleBezier = useCallback((enabled: boolean) => {
     setParams((previous) => ({
@@ -135,53 +154,6 @@ const App = () => {
       sceneLighting: preset,
     }));
   }, []);
-
-  const handleActivateGravity = useCallback(() => {
-    setGravityActive((active) => {
-      if (active) {
-        return active;
-      }
-      return true;
-    });
-  }, []);
-
-  const handleResetGravity = useCallback(() => {
-    if (gravityFrameRef.current !== null) {
-      cancelAnimationFrame(gravityFrameRef.current);
-      gravityFrameRef.current = null;
-    }
-    setGravityActive(false);
-    setGravityProgress(0);
-  }, []);
-
-  useEffect(() => {
-    if (!gravityActive) {
-      return undefined;
-    }
-    setGravityProgress(0);
-    const duration = 2500;
-    const start = performance.now();
-
-    const tick = (time: number) => {
-      const next = Math.min((time - start) / duration, 1);
-      setGravityProgress(next);
-      if (next < 1) {
-        gravityFrameRef.current = requestAnimationFrame(tick);
-      } else {
-        gravityFrameRef.current = null;
-        setGravityActive(false);
-      }
-    };
-
-    gravityFrameRef.current = requestAnimationFrame(tick);
-
-    return () => {
-      if (gravityFrameRef.current !== null) {
-        cancelAnimationFrame(gravityFrameRef.current);
-        gravityFrameRef.current = null;
-      }
-    };
-  }, [gravityActive]);
 
   const handleSaveState = useCallback(() => {
     setSavedStates((previous) => {
@@ -261,6 +233,7 @@ const App = () => {
         onChange={setParams}
         onReset={handleReset}
         onExportObj={handleExportObj}
+        onSnapshot={handleSnapshot}
         exportDisabled={!towerGeometry}
         onSaveState={handleSaveState}
         savedStates={savedStates.map(({ id, label }) => ({ id, label }))}
@@ -269,10 +242,6 @@ const App = () => {
         onToggleScaleBezier={handleToggleScaleBezier}
         onOpenBezierEditor={() => setBezierEditorOpen(true)}
         onSceneLightingChange={handleSceneLightingChange}
-        onActivateGravity={handleActivateGravity}
-        gravityActive={gravityActive}
-        onResetGravity={handleResetGravity}
-        gravityCanReset={!gravityActive && gravityProgress > 0}
       />
 
       <BezierEditor

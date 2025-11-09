@@ -6,6 +6,7 @@ type TowerControlsPanelProps = {
   onChange: Dispatch<SetStateAction<TowerParameters>>;
   onReset: () => void;
   onExportObj: () => void;
+  onSnapshot: () => void;
   exportDisabled: boolean;
   onSaveState: () => void;
   savedStates: { id: number; label: string }[];
@@ -14,10 +15,6 @@ type TowerControlsPanelProps = {
   onToggleScaleBezier: (enabled: boolean) => void;
   onOpenBezierEditor: () => void;
   onSceneLightingChange: (preset: TowerParameters['sceneLighting']) => void;
-  onActivateGravity: () => void;
-  gravityActive: boolean;
-  onResetGravity: () => void;
-  gravityCanReset: boolean;
 };
 
 const easingOptions = [
@@ -40,6 +37,7 @@ export const TowerControlsPanel = ({
   onChange,
   onReset,
   onExportObj,
+  onSnapshot,
   exportDisabled,
   onSaveState,
   savedStates,
@@ -48,10 +46,6 @@ export const TowerControlsPanel = ({
   onToggleScaleBezier,
   onOpenBezierEditor,
   onSceneLightingChange,
-  onActivateGravity,
-  gravityActive,
-  onResetGravity,
-  gravityCanReset,
 }: TowerControlsPanelProps) => {
   const handleNumberChange =
     (key: keyof TowerParameters) =>
@@ -243,18 +237,6 @@ export const TowerControlsPanel = ({
       </section>
 
       <section>
-        <h2>Gravity</h2>
-        <div className="gravity-buttons">
-          <button type="button" className="primary-button" disabled={gravityActive} onClick={onActivateGravity}>
-            {gravityActive ? 'Simulating…' : 'Activate'}
-          </button>
-          <button type="button" className="ghost-button" disabled={!gravityCanReset || gravityActive} onClick={onResetGravity}>
-            Reset
-          </button>
-        </div>
-      </section>
-
-      <section>
         <h2>Scaling gradient</h2>
         <div className="control-field">
           <label htmlFor="useGraph">Use Graph</label>
@@ -428,6 +410,9 @@ export const TowerControlsPanel = ({
         <div className="export-buttons">
           <button type="button" className="primary-button" disabled={exportDisabled} onClick={onExportObj}>
             Export Obj
+          </button>
+          <button type="button" className="primary-button" disabled={exportDisabled} onClick={onSnapshot}>
+            Snapshot
           </button>
         </div>
         <div className="state-actions">

@@ -3,7 +3,7 @@ import { BufferAttribute, BufferGeometry, Color, CylinderGeometry, Matrix4, Quat
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { TowerParameters } from '../types/tower';
 import { applyEasingCurve } from '../utils/easing';
-import { biasLerp, clamp01, cubicBezierY, lerp } from '../utils/math';
+import { biasLerp, lerp, cubicBezierY } from '../utils/math';
 
 const scratchMatrix = new Matrix4();
 const scratchQuaternion = new Quaternion();
@@ -14,11 +14,7 @@ const topColor = new Color();
 const vertexColor = new Color();
 const upAxis = new Vector3(0, 1, 0);
 
-export const useTowerGeometry = (
-  params: TowerParameters,
-  gravityProgress: number,
-  groundY: number,
-): BufferGeometry | null => {
+export const useTowerGeometry = (params: TowerParameters): BufferGeometry | null => {
   const geometry = useMemo<BufferGeometry | null>(() => {
     const { floorCount } = params;
     if (floorCount <= 0) {
@@ -45,20 +41,9 @@ export const useTowerGeometry = (
       const twistDeg = lerp(params.minTwist, params.maxTwist, twistEase);
       const twistRadians = (Math.PI / 180) * twistDeg;
 
-      const slabThickness = Math.max(params.floorThickness, 0.05);
-      const initialY = towerOffset + index * params.floorHeight + params.floorHeight * 0.5;
-      const settledY = groundY + slabThickness * 0.5 + index * slabThickness;
-      const fallDistance = Math.max(0, initialY - settledY);
-      const delay = index * 0.02;
-      const localProgress = clamp01(
-        delay >= 1 ? gravityProgress : (gravityProgress - delay) / (1 - delay),
-      );
-      const fallFactor = gravityProgress === 0 ? 0 : localProgress * localProgress;
-      const currentY = initialY - fallDistance * fallFactor;
-
-      scratchPosition.set(0, currentY, 0);
+      scratchPosition.set(0, towerOffset + index * params.floorHeight + params.floorHeight * 0.5, 0);
       scratchQuaternion.setFromAxisAngle(upAxis, twistRadians);
-      scratchScale.set(params.baseRadius * radiusMultiplier, slabThickness, params.baseRadius * radiusMultiplier);
+      scratchScale.set(params.baseRadius * radiusMultiplier, Math.max(params.floorThickness, 0.05), params.baseRadius * radiusMultiplier);
 
       scratchMatrix.compose(scratchPosition, scratchQuaternion, scratchScale);
 
@@ -82,7 +67,7 @@ export const useTowerGeometry = (
     baseGeometry.dispose();
     geometries.forEach((geom) => geom.dispose());
     return merged ?? null;
-  }, [params, gravityProgress, groundY]);
+  }, [params]);
 
   useEffect(
     () => () => {
