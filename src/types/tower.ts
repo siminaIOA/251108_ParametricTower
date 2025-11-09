@@ -5,6 +5,11 @@ export interface GradientStops {
   top: string;
 }
 
+export interface BezierHandle {
+  x: number;
+  y: number;
+}
+
 export interface TowerParameters {
   floorCount: number;
   floorHeight: number;
@@ -16,6 +21,10 @@ export interface TowerParameters {
   minTwist: number;
   maxTwist: number;
   gradientBias: number;
+  scaleBezier: {
+    enabled: boolean;
+    handles: [BezierHandle, BezierHandle];
+  };
   easing: {
     scale: EasingCurve;
     twist: EasingCurve;

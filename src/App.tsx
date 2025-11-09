@@ -5,15 +5,18 @@ import { MOUSE } from 'three';
 import './App.css';
 import { ParametricTower } from './components/canvas/ParametricTower';
 import { TowerControlsPanel } from './components/ui/TowerControlsPanel';
+import { BezierEditor } from './components/ui/BezierEditor';
 import { useTowerGeometry } from './hooks/useTowerGeometry';
 import { serializeGeometryAsOBJ } from './utils/exporters';
 import { createDefaultTowerParameters } from './state/towerParameters';
 import type { TowerParameters } from './types/tower';
 
 type SavedState = { id: number; label: string; params: TowerParameters };
+type BezierHandles = TowerParameters['scaleBezier']['handles'];
 
 const App = () => {
   const [params, setParams] = useState<TowerParameters>(() => createDefaultTowerParameters());
+  const [isBezierEditorOpen, setBezierEditorOpen] = useState(false);
   const [savedStates, setSavedStates] = useState<SavedState[]>([]);
   const [selectedStateId, setSelectedStateId] = useState<number | ''>('');
   const towerGeometry = useTowerGeometry(params);
@@ -52,6 +55,29 @@ const App = () => {
     downloadBlob(result, 'parametric_tower.obj', 'text/plain');
   }, [towerGeometry, downloadBlob]);
 
+  const handleToggleScaleBezier = useCallback((enabled: boolean) => {
+    setParams((previous) => ({
+      ...previous,
+      scaleBezier: {
+        ...previous.scaleBezier,
+        enabled,
+      },
+    }));
+    if (!enabled) {
+      setBezierEditorOpen(false);
+    }
+  }, []);
+
+  const handleBezierHandlesChange = useCallback((handles: BezierHandles) => {
+    setParams((previous) => ({
+      ...previous,
+      scaleBezier: {
+        ...previous.scaleBezier,
+        handles,
+      },
+    }));
+  }, []);
+
   const handleSaveState = useCallback(() => {
     setSavedStates((previous) => {
       const nextId = previous.length + 1;
@@ -89,8 +115,8 @@ const App = () => {
               args={[400, 400]}
               sectionSize={5}
               cellSize={0.75}
-              sectionColor="#7e848f"
-              cellColor="#4d5159"
+              sectionColor="#f0f1f5"
+              cellColor="#d9dde8"
               fadeDistance={200}
               fadeStrength={6}
               infiniteGrid
@@ -120,6 +146,15 @@ const App = () => {
         savedStates={savedStates.map(({ id, label }) => ({ id, label }))}
         selectedStateId={selectedStateId}
         onSelectState={handleSelectState}
+        onToggleScaleBezier={handleToggleScaleBezier}
+        onOpenBezierEditor={() => setBezierEditorOpen(true)}
+      />
+
+      <BezierEditor
+        open={isBezierEditorOpen}
+        handles={params.scaleBezier.handles}
+        onClose={() => setBezierEditorOpen(false)}
+        onChange={handleBezierHandlesChange}
       />
     </div>
   );

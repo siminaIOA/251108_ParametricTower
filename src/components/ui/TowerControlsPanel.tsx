@@ -11,6 +11,8 @@ type TowerControlsPanelProps = {
   savedStates: { id: number; label: string }[];
   selectedStateId: number | '';
   onSelectState: (id: number) => void;
+  onToggleScaleBezier: (enabled: boolean) => void;
+  onOpenBezierEditor: () => void;
 };
 
 const easingOptions = [
@@ -30,6 +32,8 @@ export const TowerControlsPanel = ({
   savedStates,
   selectedStateId,
   onSelectState,
+  onToggleScaleBezier,
+  onOpenBezierEditor,
 }: TowerControlsPanelProps) => {
   const handleNumberChange =
     (key: keyof TowerParameters) =>
@@ -188,7 +192,7 @@ export const TowerControlsPanel = ({
             id="floorSegments"
             type="range"
             min={3}
-            max={64}
+            max={10}
             step={1}
             value={params.floorSegments}
             onChange={handleNumberChange('floorSegments')}
@@ -222,6 +226,33 @@ export const TowerControlsPanel = ({
 
       <section>
         <h2>Scaling gradient</h2>
+        <div className="control-field">
+          <label htmlFor="useGraph">Use Graph</label>
+          <div className="graph-toggle">
+            <button
+              id="useGraph"
+              type="button"
+              className={`ghost-button ${params.scaleBezier.enabled ? 'active' : ''}`}
+              onClick={() => {
+                if (!params.scaleBezier.enabled) {
+                  onToggleScaleBezier(true);
+                }
+                onOpenBezierEditor();
+              }}
+            >
+              {params.scaleBezier.enabled ? 'Edit Graph' : 'Use Graph'}
+            </button>
+            {params.scaleBezier.enabled && (
+              <button
+                type="button"
+                className="ghost-button subtle"
+                onClick={() => onToggleScaleBezier(false)}
+              >
+                Disable
+              </button>
+            )}
+          </div>
+        </div>
         <div className="control-field">
           <label htmlFor="minScale">
             Min scale <span>{params.minScale.toFixed(2)}x</span>

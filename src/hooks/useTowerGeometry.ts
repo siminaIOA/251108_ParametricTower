@@ -3,7 +3,7 @@ import { BufferAttribute, BufferGeometry, Color, CylinderGeometry, Matrix4, Quat
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { TowerParameters } from '../types/tower';
 import { applyEasingCurve } from '../utils/easing';
-import { biasLerp, lerp } from '../utils/math';
+import { biasLerp, lerp, cubicBezierY } from '../utils/math';
 
 const scratchMatrix = new Matrix4();
 const scratchQuaternion = new Quaternion();
@@ -34,8 +34,10 @@ export const useTowerGeometry = (params: TowerParameters): BufferGeometry | null
       const biasedColorPosition = biasLerp(params.gradientBias, normalized);
       const scaleEase = applyEasingCurve(normalized, params.easing.scale);
       const twistEase = applyEasingCurve(normalized, params.easing.twist);
-
-      const radiusMultiplier = lerp(params.minScale, params.maxScale, scaleEase);
+      const scaleT = params.scaleBezier.enabled
+        ? cubicBezierY(normalized, params.scaleBezier.handles[0], params.scaleBezier.handles[1])
+        : scaleEase;
+      const radiusMultiplier = lerp(params.minScale, params.maxScale, scaleT);
       const twistDeg = lerp(params.minTwist, params.maxTwist, twistEase);
       const twistRadians = (Math.PI / 180) * twistDeg;
 
