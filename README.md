@@ -3,15 +3,16 @@
 A browser-based playground for designing gradient-driven stacked tower geometries. The app renders procedural floor slabs in WebGL (React Three Fiber + Three.js) and lets you experiment with twisting, scale envelopes, heights, color ramps, lighting, and exports to prototype expressive skyscraper massings in real time.
 
 ## Features
-- React + Vite + TypeScript scaffold with hot reload, linting, and OBJ exporting with vertex colors.
-- Three.js instanced floor slabs with gradient coloring from base to apex plus Bezier-driven scaling curves.
-- Custom controls panel for structure, scaling/twisting gradients, lighting presets, background colors, saved parameter states, facade overlays, and per-floor segment counts.
-- Bezier curve editor with draggable overlay window for sculpting the scale gradient curve.
-- Snapshot + OBJ export actions for quickly sharing renders or geometry (snapshots auto-increment their filenames).
-- Motion controls with optional auto-spin, adjustable speed, and tuned camera orbit/pan/zoom.
-- Scene lighting presets (Studio, Daylight, Sunset, Noir, Cyber) and background color picker for presentation-ready looks.
-- Saved state manager to capture multiple tower setups and switch between them instantly.
-- Responsive layout with infinite ground grid, refined scroll separation between scene/menu, and GitHub Pages-ready bundle.
+- React + Vite + TypeScript scaffold with hot reload, linting, and OBJ exporting that retains vertex colors.
+- Procedural Three.js tower mesh with per-floor twisting, scaling, gradient coloring, and customizable segment counts (triangles through decagons).
+- Facade Structure overlay button that spawns vertical guide curves to connect slab corners for mullion visualization.
+- Draggable Bezier curve editor window for hand-sculpting the scale gradient (toggleable via “Use Graph”), including synchronized UI preview.
+- Snapshot + OBJ export actions with auto-incremented filenames so every capture/download is uniquely named.
+- Saved state manager to store numbered presets (State 1, State 2, …) and instantly switch between parameter setups.
+- Scene lighting presets (Studio, Daylight, Sunset, Noir, Cyber), medium-grey background defaults, and a dedicated Background menu with color picker.
+- Motion menu with Auto Spin toggle, Spin deg/s slider (1–100), camera pan/orbit/zoom shortcuts, and optional spin bias target.
+- Refined UI shell with separated scroll areas (scene vs. panel), “Parametric Tower” headline, Apple-like controls, and draggable scale-gradient popup.
+- Infinite, fade-blurred ground grid plus global lighting tuned for bright presentation renders, ready to deploy on GitHub Pages.
 
 ## Getting Started
 1. Install Node.js 18+.
@@ -38,20 +39,21 @@ A browser-based playground for designing gradient-driven stacked tower geometrie
 ## Deployment
 1. **Build locally**
    ```bash
-   npm install
-   npm run build
+   npm install                   # first time only
+   npm run build                 # produces dist/ with absolute paths
+   npx vite build --base=./      # rebuild with relative paths for Pages
    ```
-   The optimized output lands in `dist/`.
+   The optimized, relative-path output lands in `dist/`.
 2. **Publish to GitHub Pages**
    ```bash
-   npx vite build --base=./
-   git switch gh-pages
-   cp -R dist/* .
+   git switch gh-pages           # or git switch gh-pages-new
+   rm -rf ./*                    # clear branch contents (keep .git)
+   cp -R ../251108_ParametricTower/dist/* .
    touch .nojekyll
    git add -A
    git commit -m "deploy: gh-pages"
-   git push origin gh-pages
+   git push origin gh-pages      # or push gh-pages-new
    ```
-   Finally, ensure GitHub Pages targets the `gh-pages` branch.
+   Point the repository’s Pages settings to the branch you deployed.
 3. **Live demo**
    - https://siminaioa.github.io/251108_ParametricTower/

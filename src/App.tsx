@@ -2,7 +2,7 @@ import { Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Grid, OrbitControls } from '@react-three/drei';
 import { MOUSE } from 'three';
-import type { ColorRepresentation, Vector3Tuple } from 'three';
+import type { ColorRepresentation, Vector3Tuple, WebGLRenderer } from 'three';
 import './App.css';
 import { ParametricTower } from './components/canvas/ParametricTower';
 import { FacadeStructure } from './components/canvas/FacadeStructure';
@@ -68,6 +68,7 @@ const App = () => {
   const [savedStates, setSavedStates] = useState<SavedState[]>([]);
   const [selectedStateId, setSelectedStateId] = useState<number | ''>('');
   const towerGeometry = useTowerGeometry(params);
+  const rendererRef = useRef<WebGLRenderer | null>(null);
 
   const gridOffset = useMemo(() => -(params.floorCount * params.floorHeight) * 0.5 - 0.01, [params.floorCount, params.floorHeight]);
   const spinTarget = useMemo<[number, number, number]>(
@@ -107,7 +108,7 @@ const App = () => {
   const snapshotCounterRef = useRef(1);
 
   const handleSnapshot = useCallback(() => {
-    const canvas = document.querySelector<HTMLCanvasElement>('canvas');
+    const canvas = rendererRef.current?.domElement ?? document.querySelector<HTMLCanvasElement>('canvas');
     if (!canvas) {
       return;
     }
@@ -187,7 +188,14 @@ const App = () => {
   return (
     <div className="app-shell" style={{ backgroundColor: params.backgroundColor }}>
       <div className="canvas-pane">
-        <Canvas camera={{ position: [18, 20, 28], fov: 45 }} shadows>
+        <Canvas
+          camera={{ position: [18, 20, 28], fov: 45 }}
+          shadows
+          gl={{ preserveDrawingBuffer: true }}
+          onCreated={({ gl }) => {
+            rendererRef.current = gl;
+          }}
+        >
           <color attach="background" args={[params.backgroundColor]} />
           <ambientLight intensity={lighting.ambient.intensity} color={lighting.ambient.color} />
           <hemisphereLight args={[lighting.hemisphere.sky, lighting.hemisphere.ground, lighting.hemisphere.intensity]} />
