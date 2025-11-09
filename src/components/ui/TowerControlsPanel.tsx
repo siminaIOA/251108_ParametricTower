@@ -14,6 +14,10 @@ type TowerControlsPanelProps = {
   onToggleScaleBezier: (enabled: boolean) => void;
   onOpenBezierEditor: () => void;
   onSceneLightingChange: (preset: TowerParameters['sceneLighting']) => void;
+  onActivateGravity: () => void;
+  gravityActive: boolean;
+  onResetGravity: () => void;
+  gravityCanReset: boolean;
 };
 
 const easingOptions = [
@@ -44,6 +48,10 @@ export const TowerControlsPanel = ({
   onToggleScaleBezier,
   onOpenBezierEditor,
   onSceneLightingChange,
+  onActivateGravity,
+  gravityActive,
+  onResetGravity,
+  gravityCanReset,
 }: TowerControlsPanelProps) => {
   const handleNumberChange =
     (key: keyof TowerParameters) =>
@@ -231,6 +239,18 @@ export const TowerControlsPanel = ({
             value={params.spinSpeedDeg}
             onChange={handleNumberChange('spinSpeedDeg')}
           />
+        </div>
+      </section>
+
+      <section>
+        <h2>Gravity</h2>
+        <div className="gravity-buttons">
+          <button type="button" className="primary-button" disabled={gravityActive} onClick={onActivateGravity}>
+            {gravityActive ? 'Simulating…' : 'Activate'}
+          </button>
+          <button type="button" className="ghost-button" disabled={!gravityCanReset || gravityActive} onClick={onResetGravity}>
+            Reset
+          </button>
         </div>
       </section>
 

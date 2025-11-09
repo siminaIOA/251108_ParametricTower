@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useMemo, useState } from 'react';
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Grid, OrbitControls } from '@react-three/drei';
 import { MOUSE } from 'three';
@@ -66,14 +66,17 @@ const App = () => {
   const [isBezierEditorOpen, setBezierEditorOpen] = useState(false);
   const [savedStates, setSavedStates] = useState<SavedState[]>([]);
   const [selectedStateId, setSelectedStateId] = useState<number | ''>('');
-  const towerGeometry = useTowerGeometry(params);
-
+  const [gravityProgress, setGravityProgress] = useState(0);
+  const [gravityActive, setGravityActive] = useState(false);
+  const gravityFrameRef = useRef<number | null>(null);
   const gridOffset = useMemo(() => -(params.floorCount * params.floorHeight) * 0.5 - 0.01, [params.floorCount, params.floorHeight]);
   const spinTarget = useMemo<[number, number, number]>(
     () => [0, -(params.floorCount * params.floorHeight) * 0.5 + params.floorHeight * 0.5, 0],
     [params.floorCount, params.floorHeight],
   );
   const lighting = lightingPresets[params.sceneLighting] ?? lightingPresets.studio;
+  const gravityGroundY = useMemo(() => gridOffset + params.floorHeight * 0.5, [gridOffset, params.floorHeight]);
+  const towerGeometry = useTowerGeometry(params, gravityProgress, gravityGroundY);
 
   const handleReset = () => {
     setParams(createDefaultTowerParameters());
@@ -132,6 +135,53 @@ const App = () => {
       sceneLighting: preset,
     }));
   }, []);
+
+  const handleActivateGravity = useCallback(() => {
+    setGravityActive((active) => {
+      if (active) {
+        return active;
+      }
+      return true;
+    });
+  }, []);
+
+  const handleResetGravity = useCallback(() => {
+    if (gravityFrameRef.current !== null) {
+      cancelAnimationFrame(gravityFrameRef.current);
+      gravityFrameRef.current = null;
+    }
+    setGravityActive(false);
+    setGravityProgress(0);
+  }, []);
+
+  useEffect(() => {
+    if (!gravityActive) {
+      return undefined;
+    }
+    setGravityProgress(0);
+    const duration = 2500;
+    const start = performance.now();
+
+    const tick = (time: number) => {
+      const next = Math.min((time - start) / duration, 1);
+      setGravityProgress(next);
+      if (next < 1) {
+        gravityFrameRef.current = requestAnimationFrame(tick);
+      } else {
+        gravityFrameRef.current = null;
+        setGravityActive(false);
+      }
+    };
+
+    gravityFrameRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (gravityFrameRef.current !== null) {
+        cancelAnimationFrame(gravityFrameRef.current);
+        gravityFrameRef.current = null;
+      }
+    };
+  }, [gravityActive]);
 
   const handleSaveState = useCallback(() => {
     setSavedStates((previous) => {
@@ -219,6 +269,10 @@ const App = () => {
         onToggleScaleBezier={handleToggleScaleBezier}
         onOpenBezierEditor={() => setBezierEditorOpen(true)}
         onSceneLightingChange={handleSceneLightingChange}
+        onActivateGravity={handleActivateGravity}
+        gravityActive={gravityActive}
+        onResetGravity={handleResetGravity}
+        gravityCanReset={!gravityActive && gravityProgress > 0}
       />
 
       <BezierEditor
