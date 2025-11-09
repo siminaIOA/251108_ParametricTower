@@ -127,7 +127,6 @@ export const TowerControlsPanel = ({
       <div className="panel-header">
         <div>
           <p className="eyebrow">Parametric Tower</p>
-          <h1>Gradient Generator</h1>
         </div>
         <button type="button" className="ghost-button" onClick={onReset}>
           Reset presets
