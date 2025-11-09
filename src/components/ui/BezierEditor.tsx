@@ -12,10 +12,15 @@ const clamp = (value: number, min = 0, max = 1) => Math.min(Math.max(value, min)
 
 export const BezierEditor = ({ open, handles, onChange, onClose }: BezierEditorProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDraggingPanel, setDraggingPanel] = useState(false);
+  const offsetRef = useRef({ x: 0, y: 0 });
+  const hasPosition = useRef(false);
 
   useEffect(() => {
-    const handleMove = (event: PointerEvent) => {
+    const handleBezierMove = (event: PointerEvent) => {
       if (dragIndex === null) {
         return;
       }
@@ -32,15 +37,41 @@ export const BezierEditor = ({ open, handles, onChange, onClose }: BezierEditorP
       onChange(next);
     };
 
-    const endDrag = () => setDragIndex(null);
+    const handlePanelMove = (event: PointerEvent) => {
+      if (!isDraggingPanel) {
+        return;
+      }
+      setPosition({
+        x: clamp(event.clientX - offsetRef.current.x, 8, window.innerWidth - (panelRef.current?.offsetWidth ?? 0) - 8),
+        y: clamp(event.clientY - offsetRef.current.y, 8, window.innerHeight - (panelRef.current?.offsetHeight ?? 0) - 8),
+      });
+    };
 
-    window.addEventListener('pointermove', handleMove);
+    const endDrag = () => {
+      setDragIndex(null);
+      setDraggingPanel(false);
+    };
+
+    window.addEventListener('pointermove', handleBezierMove);
+    window.addEventListener('pointermove', handlePanelMove);
     window.addEventListener('pointerup', endDrag);
     return () => {
-      window.removeEventListener('pointermove', handleMove);
+      window.removeEventListener('pointermove', handleBezierMove);
+      window.removeEventListener('pointermove', handlePanelMove);
       window.removeEventListener('pointerup', endDrag);
     };
-  }, [dragIndex, handles, onChange]);
+  }, [dragIndex, handles, onChange, isDraggingPanel]);
+
+  useEffect(() => {
+    if (open && !hasPosition.current && panelRef.current) {
+      const rect = panelRef.current.getBoundingClientRect();
+      setPosition({
+        x: window.innerWidth / 2 - rect.width / 2,
+        y: window.innerHeight / 2 - rect.height / 2,
+      });
+      hasPosition.current = true;
+    }
+  }, [open]);
 
   if (!open) {
     return null;
@@ -57,10 +88,42 @@ export const BezierEditor = ({ open, handles, onChange, onClose }: BezierEditorP
 
   return (
     <div className="bezier-overlay">
-      <div className="bezier-panel">
-        <div className="bezier-header">
+      <div
+        className="bezier-panel"
+        ref={panelRef}
+        style={{ left: `${position.x}px`, top: `${position.y}px` }}
+      >
+        <div
+          className="bezier-header"
+          onPointerDown={(event) => {
+            const isButton = (event.target as HTMLElement).closest('button');
+            if (isButton) {
+              return;
+            }
+            const bounds = panelRef.current?.getBoundingClientRect();
+            if (!bounds) {
+              return;
+            }
+            setDraggingPanel(true);
+            offsetRef.current = {
+              x: event.clientX - bounds.left,
+              y: event.clientY - bounds.top,
+            };
+            panelRef.current?.setPointerCapture(event.pointerId);
+          }}
+          onPointerUp={(event) => {
+            panelRef.current?.releasePointerCapture(event.pointerId);
+          }}
+        >
           <p>Scale Gradient Curve</p>
-          <button type="button" className="ghost-button" onClick={onClose}>
+          <button
+            type="button"
+            className="ghost-button"
+            onClick={(event) => {
+              event.stopPropagation();
+              onClose();
+            }}
+          >
             Close
           </button>
         </div>
