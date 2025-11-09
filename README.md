@@ -5,7 +5,7 @@ A browser-based playground for designing gradient-driven stacked tower geometrie
 ## Features
 - React + Vite + TypeScript scaffold with hot reload, linting, and OBJ exporting with vertex colors.
 - Three.js instanced floor slabs with gradient coloring from base to apex plus Bezier-driven scaling curves.
-- Custom controls panel for structure, scaling/twisting gradients, lighting presets, background colors, and saved parameter states.
+- Custom controls panel for structure, scaling/twisting gradients, facade overlays, lighting presets, background colors, and saved parameter states.
 - Motion controls with optional auto-spin, adjustable speed, and a draggable Bezier graph editor for precise scaling curves.
 - Scene lighting presets (Studio, Daylight, Sunset, Noir, Cyber) for rapid presentation looks.
 - Saved state manager to capture multiple tower setups and switch between them instantly.
@@ -28,6 +28,7 @@ A browser-based playground for designing gradient-driven stacked tower geometrie
 - **Scaling gradient**: set min/max scale, easing curve, or toggle the Bezier graph editor for custom curves.
 - **Twist gradient**: configure base/apex twist with easing.
 - **Color gradient**: pick bottom/top colors, adjust gradient bias, and choose scene lighting presets.
+- **Facade Structure**: toggle white guide curves that trace each slab segment to visualize facade mullions.
 - **Motion**: toggle auto-spin, adjust spin speed, and view the tower center.
 - **Background**: set the canvas background color.
 - **Export & States**: export OBJ files (with vertex colors), save parameter states, and switch between them.

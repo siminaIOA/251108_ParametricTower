@@ -5,6 +5,7 @@ import { MOUSE } from 'three';
 import type { ColorRepresentation, Vector3Tuple } from 'three';
 import './App.css';
 import { ParametricTower } from './components/canvas/ParametricTower';
+import { FacadeStructure } from './components/canvas/FacadeStructure';
 import { TowerControlsPanel } from './components/ui/TowerControlsPanel';
 import { BezierEditor } from './components/ui/BezierEditor';
 import { useTowerGeometry } from './hooks/useTowerGeometry';
@@ -155,6 +156,13 @@ const App = () => {
     }));
   }, []);
 
+  const handleToggleFacade = useCallback(() => {
+    setParams((previous) => ({
+      ...previous,
+      facadeEnabled: !previous.facadeEnabled,
+    }));
+  }, []);
+
   const handleSaveState = useCallback(() => {
     setSavedStates((previous) => {
       const nextId = previous.length + 1;
@@ -203,6 +211,7 @@ const App = () => {
           />
           <Suspense fallback={null}>
             <ParametricTower geometry={towerGeometry} />
+            {params.facadeEnabled && <FacadeStructure params={params} />}
             <Grid
               args={[400, 400]}
               sectionSize={5}
@@ -242,6 +251,8 @@ const App = () => {
         onToggleScaleBezier={handleToggleScaleBezier}
         onOpenBezierEditor={() => setBezierEditorOpen(true)}
         onSceneLightingChange={handleSceneLightingChange}
+        onToggleFacade={handleToggleFacade}
+        facadeEnabled={params.facadeEnabled}
       />
 
       <BezierEditor

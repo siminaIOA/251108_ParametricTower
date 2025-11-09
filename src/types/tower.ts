@@ -34,4 +34,5 @@ export interface TowerParameters {
   backgroundColor: string;
   autoSpin: boolean;
   spinSpeedDeg: number;
+  facadeEnabled: boolean;
 }

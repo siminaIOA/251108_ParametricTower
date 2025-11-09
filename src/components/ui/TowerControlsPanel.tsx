@@ -15,6 +15,8 @@ type TowerControlsPanelProps = {
   onToggleScaleBezier: (enabled: boolean) => void;
   onOpenBezierEditor: () => void;
   onSceneLightingChange: (preset: TowerParameters['sceneLighting']) => void;
+  onToggleFacade: () => void;
+  facadeEnabled: boolean;
 };
 
 const easingOptions = [
@@ -46,6 +48,8 @@ export const TowerControlsPanel = ({
   onToggleScaleBezier,
   onOpenBezierEditor,
   onSceneLightingChange,
+  onToggleFacade,
+  facadeEnabled,
 }: TowerControlsPanelProps) => {
   const handleNumberChange =
     (key: keyof TowerParameters) =>
@@ -208,6 +212,16 @@ export const TowerControlsPanel = ({
             value={params.floorSegments}
             onChange={handleNumberChange('floorSegments')}
           />
+        </div>
+        <div className="control-field">
+          <button
+            type="button"
+            className={`primary-button facade-button ${facadeEnabled ? 'active' : ''}`}
+            onClick={onToggleFacade}
+            aria-pressed={facadeEnabled}
+          >
+            Facade Structure
+          </button>
         </div>
       </section>
 

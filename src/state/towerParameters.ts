@@ -30,6 +30,7 @@ export const defaultTowerParameters: TowerParameters = {
   backgroundColor: '#080a14',
   autoSpin: false,
   spinSpeedDeg: 6,
+  facadeEnabled: false,
 };
 
 export const createDefaultTowerParameters = (): TowerParameters => ({
@@ -48,4 +49,5 @@ export const createDefaultTowerParameters = (): TowerParameters => ({
   sceneLighting: defaultTowerParameters.sceneLighting,
   autoSpin: defaultTowerParameters.autoSpin,
   spinSpeedDeg: defaultTowerParameters.spinSpeedDeg,
+  facadeEnabled: defaultTowerParameters.facadeEnabled,
 });
