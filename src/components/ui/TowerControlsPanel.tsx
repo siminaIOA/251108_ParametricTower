@@ -13,6 +13,7 @@ type TowerControlsPanelProps = {
   onSelectState: (id: number) => void;
   onToggleScaleBezier: (enabled: boolean) => void;
   onOpenBezierEditor: () => void;
+  onSceneLightingChange: (preset: TowerParameters['sceneLighting']) => void;
 };
 
 const easingOptions = [
@@ -20,6 +21,14 @@ const easingOptions = [
   { label: 'Ease In', value: 'easeIn' },
   { label: 'Ease Out', value: 'easeOut' },
   { label: 'Ease In-Out', value: 'easeInOut' },
+];
+
+const lightingOptions: { label: string; value: TowerParameters['sceneLighting'] }[] = [
+  { label: 'Studio Soft', value: 'studio' },
+  { label: 'Daylight', value: 'daylight' },
+  { label: 'Sunset Glow', value: 'sunset' },
+  { label: 'Noir Spot', value: 'noir' },
+  { label: 'Cyber Neon', value: 'cyber' },
 ];
 
 export const TowerControlsPanel = ({
@@ -34,6 +43,7 @@ export const TowerControlsPanel = ({
   onSelectState,
   onToggleScaleBezier,
   onOpenBezierEditor,
+  onSceneLightingChange,
 }: TowerControlsPanelProps) => {
   const handleNumberChange =
     (key: keyof TowerParameters) =>
@@ -366,6 +376,20 @@ export const TowerControlsPanel = ({
               onChange((previous) => ({ ...previous, gradientBias: value }));
             }}
           />
+        </div>
+        <div className="control-field">
+          <label htmlFor="sceneLighting">Scene Lighting</label>
+          <select
+            id="sceneLighting"
+            value={params.sceneLighting}
+            onChange={(event) => onSceneLightingChange(event.currentTarget.value as TowerParameters['sceneLighting'])}
+          >
+            {lightingOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
       </section>
 

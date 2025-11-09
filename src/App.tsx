@@ -2,6 +2,7 @@ import { Suspense, useCallback, useMemo, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Grid, OrbitControls } from '@react-three/drei';
 import { MOUSE } from 'three';
+import type { ColorRepresentation, Vector3Tuple } from 'three';
 import './App.css';
 import { ParametricTower } from './components/canvas/ParametricTower';
 import { TowerControlsPanel } from './components/ui/TowerControlsPanel';
@@ -13,6 +14,52 @@ import type { TowerParameters } from './types/tower';
 
 type SavedState = { id: number; label: string; params: TowerParameters };
 type BezierHandles = TowerParameters['scaleBezier']['handles'];
+
+type LightingPreset = {
+  ambient: { intensity: number; color: ColorRepresentation };
+  hemisphere: { sky: ColorRepresentation; ground: ColorRepresentation; intensity: number };
+  key: { position: Vector3Tuple; intensity: number; color: ColorRepresentation };
+  fill: { position: Vector3Tuple; intensity: number; color: ColorRepresentation };
+  accent: { position: Vector3Tuple; intensity: number; color: ColorRepresentation; angle: number; penumbra: number };
+};
+
+const lightingPresets: Record<TowerParameters['sceneLighting'], LightingPreset> = {
+  studio: {
+    ambient: { intensity: 1.1, color: '#ffffff' },
+    hemisphere: { sky: '#f1f4ff', ground: '#0c132e', intensity: 0.8 },
+    key: { position: [25, 30, 15], intensity: 1.8, color: '#fff0f0' },
+    fill: { position: [-18, 18, -10], intensity: 0.8, color: '#a6c1ff' },
+    accent: { position: [-30, 25, -5], intensity: 1, color: '#9cd5ff', angle: 0.55, penumbra: 0.6 },
+  },
+  daylight: {
+    ambient: { intensity: 0.9, color: '#e3f2ff' },
+    hemisphere: { sky: '#d9f0ff', ground: '#a3bfd1', intensity: 0.9 },
+    key: { position: [40, 50, 10], intensity: 2.2, color: '#fff3d1' },
+    fill: { position: [-35, 25, -20], intensity: 0.6, color: '#cfe4ff' },
+    accent: { position: [0, 60, 0], intensity: 0.5, color: '#ffffff', angle: 0.7, penumbra: 0.4 },
+  },
+  sunset: {
+    ambient: { intensity: 0.7, color: '#ffcfaa' },
+    hemisphere: { sky: '#ff9e7b', ground: '#3a1f2a', intensity: 0.6 },
+    key: { position: [15, 15, 30], intensity: 2.0, color: '#ffb070' },
+    fill: { position: [-20, 10, -5], intensity: 0.5, color: '#ffdcdc' },
+    accent: { position: [0, 5, -30], intensity: 0.8, color: '#ff5f6d', angle: 0.4, penumbra: 0.5 },
+  },
+  noir: {
+    ambient: { intensity: 0.35, color: '#dde3ff' },
+    hemisphere: { sky: '#8da2d0', ground: '#080a14', intensity: 0.3 },
+    key: { position: [10, 35, 5], intensity: 2.4, color: '#ffffff' },
+    fill: { position: [-25, 5, -10], intensity: 0.25, color: '#3b4a70' },
+    accent: { position: [0, 50, -20], intensity: 0.9, color: '#7ab8ff', angle: 0.35, penumbra: 0.3 },
+  },
+  cyber: {
+    ambient: { intensity: 0.8, color: '#b8fffb' },
+    hemisphere: { sky: '#7af5ff', ground: '#140023', intensity: 0.7 },
+    key: { position: [25, 25, 25], intensity: 1.6, color: '#7af5ff' },
+    fill: { position: [-25, 18, -15], intensity: 1.1, color: '#ff78ff' },
+    accent: { position: [-5, 35, 5], intensity: 1.2, color: '#ffea7a', angle: 0.5, penumbra: 0.7 },
+  },
+};
 
 const App = () => {
   const [params, setParams] = useState<TowerParameters>(() => createDefaultTowerParameters());
@@ -26,6 +73,7 @@ const App = () => {
     () => [0, -(params.floorCount * params.floorHeight) * 0.5 + params.floorHeight * 0.5, 0],
     [params.floorCount, params.floorHeight],
   );
+  const lighting = lightingPresets[params.sceneLighting] ?? lightingPresets.studio;
 
   const handleReset = () => {
     setParams(createDefaultTowerParameters());
@@ -78,6 +126,13 @@ const App = () => {
     }));
   }, []);
 
+  const handleSceneLightingChange = useCallback((preset: TowerParameters['sceneLighting']) => {
+    setParams((previous) => ({
+      ...previous,
+      sceneLighting: preset,
+    }));
+  }, []);
+
   const handleSaveState = useCallback(() => {
     setSavedStates((previous) => {
       const nextId = previous.length + 1;
@@ -104,11 +159,26 @@ const App = () => {
       <div className="canvas-pane">
         <Canvas camera={{ position: [18, 20, 28], fov: 45 }} shadows>
           <color attach="background" args={[params.backgroundColor]} />
-          <ambientLight intensity={1.15} />
-          <hemisphereLight args={['#f1f4ff', '#0c132e', 0.85]} />
-          <directionalLight position={[25, 30, 15]} intensity={1.85} castShadow />
-          <directionalLight position={[-18, 18, -10]} intensity={1} color="#a8d3ff" />
-          <spotLight position={[-30, 25, -5]} intensity={1.1} angle={0.6} penumbra={0.65} color="#9cd5ff" />
+          <ambientLight intensity={lighting.ambient.intensity} color={lighting.ambient.color} />
+          <hemisphereLight args={[lighting.hemisphere.sky, lighting.hemisphere.ground, lighting.hemisphere.intensity]} />
+          <directionalLight
+            position={lighting.key.position}
+            intensity={lighting.key.intensity}
+            color={lighting.key.color}
+            castShadow
+          />
+          <directionalLight
+            position={lighting.fill.position}
+            intensity={lighting.fill.intensity}
+            color={lighting.fill.color}
+          />
+          <spotLight
+            position={lighting.accent.position}
+            intensity={lighting.accent.intensity}
+            angle={lighting.accent.angle}
+            penumbra={lighting.accent.penumbra}
+            color={lighting.accent.color}
+          />
           <Suspense fallback={null}>
             <ParametricTower geometry={towerGeometry} />
             <Grid
@@ -148,6 +218,7 @@ const App = () => {
         onSelectState={handleSelectState}
         onToggleScaleBezier={handleToggleScaleBezier}
         onOpenBezierEditor={() => setBezierEditorOpen(true)}
+        onSceneLightingChange={handleSceneLightingChange}
       />
 
       <BezierEditor

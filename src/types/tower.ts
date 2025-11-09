@@ -25,6 +25,7 @@ export interface TowerParameters {
     enabled: boolean;
     handles: [BezierHandle, BezierHandle];
   };
+  sceneLighting: 'studio' | 'daylight' | 'sunset' | 'noir' | 'cyber';
   easing: {
     scale: EasingCurve;
     twist: EasingCurve;

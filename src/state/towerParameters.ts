@@ -18,6 +18,7 @@ export const defaultTowerParameters: TowerParameters = {
       { x: 0.7, y: 0.9 },
     ],
   },
+  sceneLighting: 'studio',
   easing: {
     scale: 'easeInOut',
     twist: 'easeOut',
@@ -44,6 +45,7 @@ export const createDefaultTowerParameters = (): TowerParameters => ({
       TowerParameters['scaleBezier']['handles'][number],
     ],
   },
+  sceneLighting: defaultTowerParameters.sceneLighting,
   autoSpin: defaultTowerParameters.autoSpin,
   spinSpeedDeg: defaultTowerParameters.spinSpeedDeg,
 });
