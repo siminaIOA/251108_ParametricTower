@@ -5,6 +5,12 @@ type TowerControlsPanelProps = {
   params: TowerParameters;
   onChange: Dispatch<SetStateAction<TowerParameters>>;
   onReset: () => void;
+  onExportObj: () => void;
+  exportDisabled: boolean;
+  onSaveState: () => void;
+  savedStates: { id: number; label: string }[];
+  selectedStateId: number | '';
+  onSelectState: (id: number) => void;
 };
 
 const easingOptions = [
@@ -14,7 +20,17 @@ const easingOptions = [
   { label: 'Ease In-Out', value: 'easeInOut' },
 ];
 
-export const TowerControlsPanel = ({ params, onChange, onReset }: TowerControlsPanelProps) => {
+export const TowerControlsPanel = ({
+  params,
+  onChange,
+  onReset,
+  onExportObj,
+  exportDisabled,
+  onSaveState,
+  savedStates,
+  selectedStateId,
+  onSelectState,
+}: TowerControlsPanelProps) => {
   const handleNumberChange =
     (key: keyof TowerParameters) =>
     (event: ChangeEvent<HTMLInputElement>) => {
@@ -329,6 +345,37 @@ export const TowerControlsPanel = ({ params, onChange, onReset }: TowerControlsP
             Scene color <span>{params.backgroundColor.toUpperCase()}</span>
           </label>
           <input id="backgroundColor" type="color" value={params.backgroundColor} onChange={handleBackgroundChange} />
+        </div>
+      </section>
+
+      <section>
+        <h2>Export</h2>
+        <div className="export-buttons">
+          <button type="button" className="primary-button" disabled={exportDisabled} onClick={onExportObj}>
+            Export Obj
+          </button>
+        </div>
+        <div className="state-actions">
+          <button type="button" className="ghost-button" onClick={onSaveState}>
+            Save State
+          </button>
+          <select
+            value={selectedStateId === '' ? '' : selectedStateId}
+            onChange={(event) => {
+              const value = event.currentTarget.value;
+              if (!value) {
+                return;
+              }
+              onSelectState(Number(value));
+            }}
+          >
+            <option value="">Select State</option>
+            {savedStates.map((state) => (
+              <option key={state.id} value={state.id}>
+                {state.label}
+              </option>
+            ))}
+          </select>
         </div>
       </section>
     </aside>
