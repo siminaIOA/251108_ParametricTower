@@ -72,6 +72,14 @@ export const TowerControlsPanel = ({ params, onChange, onReset }: TowerControlsP
       }));
     };
 
+  const handleBackgroundChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const value = event.currentTarget.value;
+    onChange((previous) => ({
+      ...previous,
+      backgroundColor: value,
+    }));
+  };
+
   return (
     <aside className="controls-panel">
       <div className="panel-header">
@@ -113,6 +121,21 @@ export const TowerControlsPanel = ({ params, onChange, onReset }: TowerControlsP
             step={0.1}
             value={params.floorHeight}
             onChange={handleNumberChange('floorHeight')}
+          />
+        </div>
+
+        <div className="control-field">
+          <label htmlFor="floorThickness">
+            Floor thickness <span>{params.floorThickness.toFixed(2)} m</span>
+          </label>
+          <input
+            id="floorThickness"
+            type="range"
+            min={0.1}
+            max={3}
+            step={0.05}
+            value={params.floorThickness}
+            onChange={handleNumberChange('floorThickness')}
           />
         </div>
 
@@ -227,6 +250,36 @@ export const TowerControlsPanel = ({ params, onChange, onReset }: TowerControlsP
             Apex
             <input id="topColor" type="color" value={params.gradientColors.top} onChange={handleColorChange('top')} />
           </label>
+        </div>
+        <div className="control-field">
+          <label htmlFor="gradientBias">
+            Gradient bias <span>{Math.round(params.gradientBias * 100)}%</span>
+          </label>
+          <input
+            id="gradientBias"
+            type="range"
+            min={0}
+            max={1}
+            step={0.01}
+            value={params.gradientBias}
+            onChange={(event) => {
+              const value = Number(event.currentTarget.value);
+              if (Number.isNaN(value)) {
+                return;
+              }
+              onChange((previous) => ({ ...previous, gradientBias: value }));
+            }}
+          />
+        </div>
+      </section>
+
+      <section>
+        <h2>Background</h2>
+        <div className="control-field">
+          <label htmlFor="backgroundColor">
+            Scene color <span>{params.backgroundColor.toUpperCase()}</span>
+          </label>
+          <input id="backgroundColor" type="color" value={params.backgroundColor} onChange={handleBackgroundChange} />
         </div>
       </section>
     </aside>

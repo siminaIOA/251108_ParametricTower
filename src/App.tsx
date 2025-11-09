@@ -21,13 +21,15 @@ const App = () => {
   };
 
   return (
-    <div className="app-shell">
+    <div className="app-shell" style={{ backgroundColor: params.backgroundColor }}>
       <div className="canvas-pane">
         <Canvas camera={{ position: [18, 20, 28], fov: 45 }} shadows>
-          <color attach="background" args={['#040611']} />
-          <ambientLight intensity={0.6} />
-          <directionalLight position={[25, 30, 15]} intensity={1.2} castShadow />
-          <spotLight position={[-30, 25, -5]} intensity={0.8} angle={0.5} penumbra={0.6} color="#7ab8ff" />
+          <color attach="background" args={[params.backgroundColor]} />
+          <ambientLight intensity={1.15} />
+          <hemisphereLight args={['#f1f4ff', '#0c132e', 0.85]} />
+          <directionalLight position={[25, 30, 15]} intensity={1.85} castShadow />
+          <directionalLight position={[-18, 18, -10]} intensity={1} color="#a8d3ff" />
+          <spotLight position={[-30, 25, -5]} intensity={1.1} angle={0.6} penumbra={0.65} color="#9cd5ff" />
           <Suspense fallback={null}>
             <ParametricTower params={params} />
             <Grid

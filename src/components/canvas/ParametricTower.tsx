@@ -1,8 +1,9 @@
-import { useEffect, useRef } from 'react';
-import { Color, InstancedMesh, Matrix4, Quaternion, Vector3 } from 'three';
+import { useEffect, useMemo } from 'react';
+import { BufferAttribute, BufferGeometry, Color, CylinderGeometry, Matrix4, Quaternion, Vector3 } from 'three';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { TowerParameters } from '../../types/tower';
 import { applyEasingCurve } from '../../utils/easing';
-import { lerp } from '../../utils/math';
+import { biasLerp, lerp } from '../../utils/math';
 
 type ParametricTowerProps = {
   params: TowerParameters;
@@ -12,30 +13,28 @@ const scratchMatrix = new Matrix4();
 const scratchQuaternion = new Quaternion();
 const scratchPosition = new Vector3();
 const scratchScale = new Vector3();
-const scratchColor = new Color();
+const baseGeometry = new CylinderGeometry(1, 1, 1, 48, 1, false);
 const bottomColor = new Color();
 const topColor = new Color();
+const vertexColor = new Color();
 const upAxis = new Vector3(0, 1, 0);
 
 export const ParametricTower = ({ params }: ParametricTowerProps) => {
-  const meshRef = useRef<InstancedMesh>(null);
-
-  useEffect(() => {
-    const mesh = meshRef.current;
-    if (!mesh) {
-      return;
+  const towerGeometry = useMemo<BufferGeometry | null>(() => {
+    const { floorCount } = params;
+    if (floorCount <= 0) {
+      return null;
     }
 
-    const { floorCount } = params;
     bottomColor.set(params.gradientColors.bottom);
     topColor.set(params.gradientColors.top);
 
-    mesh.count = floorCount;
-
     const towerOffset = -(floorCount * params.floorHeight) * 0.5;
+    const geometries: BufferGeometry[] = [];
 
     for (let index = 0; index < floorCount; index += 1) {
       const normalized = floorCount === 1 ? 0 : index / (floorCount - 1);
+      const biasedColorPosition = biasLerp(params.gradientBias, normalized);
       const scaleEase = applyEasingCurve(normalized, params.easing.scale);
       const twistEase = applyEasingCurve(normalized, params.easing.twist);
 
@@ -45,37 +44,45 @@ export const ParametricTower = ({ params }: ParametricTowerProps) => {
 
       scratchPosition.set(0, towerOffset + index * params.floorHeight + params.floorHeight * 0.5, 0);
       scratchQuaternion.setFromAxisAngle(upAxis, twistRadians);
-      scratchScale.set(
-        params.baseRadius * radiusMultiplier,
-        Math.max(params.floorHeight * 0.45, 0.1),
-        params.baseRadius * radiusMultiplier,
-      );
+      scratchScale.set(params.baseRadius * radiusMultiplier, Math.max(params.floorThickness, 0.05), params.baseRadius * radiusMultiplier);
 
       scratchMatrix.compose(scratchPosition, scratchQuaternion, scratchScale);
-      mesh.setMatrixAt(index, scratchMatrix);
 
-      scratchColor.lerpColors(bottomColor, topColor, normalized);
-      mesh.setColorAt(index, scratchColor);
+      const floorGeometry = baseGeometry.clone();
+      floorGeometry.applyMatrix4(scratchMatrix);
+
+      vertexColor.lerpColors(bottomColor, topColor, biasedColorPosition);
+      const vertexCount = floorGeometry.attributes.position.count;
+      const colors = new Float32Array(vertexCount * 3);
+      for (let vertexIndex = 0; vertexIndex < vertexCount; vertexIndex += 1) {
+        const offset = vertexIndex * 3;
+        colors[offset] = vertexColor.r;
+        colors[offset + 1] = vertexColor.g;
+        colors[offset + 2] = vertexColor.b;
+      }
+      floorGeometry.setAttribute('color', new BufferAttribute(colors, 3));
+      geometries.push(floorGeometry);
     }
 
-    mesh.instanceMatrix.needsUpdate = true;
-    if (mesh.instanceColor) {
-      mesh.instanceColor.needsUpdate = true;
-    }
+    const merged = mergeGeometries(geometries, false);
+    geometries.forEach((geometry) => geometry.dispose());
+    return merged ?? null;
   }, [params]);
 
+  useEffect(
+    () => () => {
+      towerGeometry?.dispose();
+    },
+    [towerGeometry],
+  );
+
+  if (!towerGeometry) {
+    return null;
+  }
+
   return (
-    <group>
-      <instancedMesh
-        key={params.floorCount}
-        ref={meshRef}
-        args={[undefined, undefined, params.floorCount]}
-        castShadow
-        receiveShadow
-      >
-        <cylinderGeometry args={[1, 1, 1, 48, 1, true]} />
-        <meshStandardMaterial vertexColors roughness={0.3} metalness={0.15} />
-      </instancedMesh>
-    </group>
+    <mesh geometry={towerGeometry} castShadow receiveShadow>
+      <meshStandardMaterial vertexColors toneMapped={false} roughness={0.25} metalness={0.05} />
+    </mesh>
   );
 };
