@@ -72,6 +72,16 @@ export const TowerControlsPanel = ({ params, onChange, onReset }: TowerControlsP
       }));
     };
 
+  const handleBooleanChange =
+    (key: keyof TowerParameters) =>
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const { checked } = event.currentTarget;
+      onChange((previous) => ({
+        ...previous,
+        [key]: checked,
+      }));
+    };
+
   const handleBackgroundChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.currentTarget.value;
     onChange((previous) => ({
@@ -151,6 +161,45 @@ export const TowerControlsPanel = ({ params, onChange, onReset }: TowerControlsP
             step={0.1}
             value={params.baseRadius}
             onChange={handleNumberChange('baseRadius')}
+          />
+        </div>
+
+        <div className="control-field">
+          <label htmlFor="floorSegments">
+            Segments <span>{params.floorSegments}</span>
+          </label>
+          <input
+            id="floorSegments"
+            type="range"
+            min={3}
+            max={64}
+            step={1}
+            value={params.floorSegments}
+            onChange={handleNumberChange('floorSegments')}
+          />
+        </div>
+      </section>
+
+      <section>
+        <h2>Motion</h2>
+        <div className="control-field checkbox-field">
+          <label htmlFor="autoSpin" className="checkbox-label">
+            <span>Auto spin</span>
+            <input id="autoSpin" type="checkbox" checked={params.autoSpin} onChange={handleBooleanChange('autoSpin')} />
+          </label>
+        </div>
+        <div className="control-field">
+          <label htmlFor="spinSpeedDeg">
+            Spin deg/s <span>{params.spinSpeedDeg.toFixed(0)}</span>
+          </label>
+          <input
+            id="spinSpeedDeg"
+            type="range"
+            min={1}
+            max={100}
+            step={1}
+            value={params.spinSpeedDeg}
+            onChange={handleNumberChange('spinSpeedDeg')}
           />
         </div>
       </section>

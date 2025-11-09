@@ -5,6 +5,7 @@ export const defaultTowerParameters: TowerParameters = {
   floorHeight: 4,
   baseRadius: 6,
   floorThickness: 1.2,
+  floorSegments: 32,
   minScale: 0.65,
   maxScale: 1.25,
   minTwist: 0,
@@ -19,6 +20,8 @@ export const defaultTowerParameters: TowerParameters = {
     top: '#ffb347',
   },
   backgroundColor: '#2a2a2a',
+  autoSpin: false,
+  spinSpeedDeg: 6,
 };
 
 export const createDefaultTowerParameters = (): TowerParameters => ({
@@ -27,4 +30,6 @@ export const createDefaultTowerParameters = (): TowerParameters => ({
   gradientColors: { ...defaultTowerParameters.gradientColors },
   backgroundColor: defaultTowerParameters.backgroundColor,
   gradientBias: defaultTowerParameters.gradientBias,
+  autoSpin: defaultTowerParameters.autoSpin,
+  spinSpeedDeg: defaultTowerParameters.spinSpeedDeg,
 });

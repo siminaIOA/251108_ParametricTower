@@ -10,6 +10,7 @@ export interface TowerParameters {
   floorHeight: number;
   baseRadius: number;
   floorThickness: number;
+  floorSegments: number;
   minScale: number;
   maxScale: number;
   minTwist: number;
@@ -21,4 +22,6 @@ export interface TowerParameters {
   };
   gradientColors: GradientStops;
   backgroundColor: string;
+  autoSpin: boolean;
+  spinSpeedDeg: number;
 }

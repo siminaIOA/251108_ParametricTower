@@ -13,7 +13,6 @@ const scratchMatrix = new Matrix4();
 const scratchQuaternion = new Quaternion();
 const scratchPosition = new Vector3();
 const scratchScale = new Vector3();
-const baseGeometry = new CylinderGeometry(1, 1, 1, 48, 1, false);
 const bottomColor = new Color();
 const topColor = new Color();
 const vertexColor = new Color();
@@ -29,6 +28,8 @@ export const ParametricTower = ({ params }: ParametricTowerProps) => {
     bottomColor.set(params.gradientColors.bottom);
     topColor.set(params.gradientColors.top);
 
+    const radialSegments = Math.max(3, Math.floor(params.floorSegments ?? 32));
+    const baseGeometry = new CylinderGeometry(1, 1, 1, radialSegments, 1, false);
     const towerOffset = -(floorCount * params.floorHeight) * 0.5;
     const geometries: BufferGeometry[] = [];
 
@@ -66,6 +67,7 @@ export const ParametricTower = ({ params }: ParametricTowerProps) => {
 
     const merged = mergeGeometries(geometries, false);
     geometries.forEach((geometry) => geometry.dispose());
+    baseGeometry.dispose();
     return merged ?? null;
   }, [params]);
 

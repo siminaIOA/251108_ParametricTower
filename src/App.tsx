@@ -7,9 +7,6 @@ import { TowerControlsPanel } from './components/ui/TowerControlsPanel';
 import { createDefaultTowerParameters } from './state/towerParameters';
 import type { TowerParameters } from './types/tower';
 
-const gridColorDark = '#0a0d1a';
-const gridColorLight = '#141a2d';
-
 const App = () => {
   const [params, setParams] = useState<TowerParameters>(() => createDefaultTowerParameters());
 
@@ -33,16 +30,25 @@ const App = () => {
           <Suspense fallback={null}>
             <ParametricTower params={params} />
             <Grid
-              args={[80, 80]}
-              sectionSize={2}
-              cellSize={0.5}
-              sectionColor={gridColorLight}
-              cellColor={gridColorDark}
-              fadeStrength={2}
+              args={[400, 400]}
+              sectionSize={5}
+              cellSize={0.75}
+              sectionColor="#353535"
+              cellColor="#1f1f1f"
+              fadeDistance={200}
+              fadeStrength={6}
+              infiniteGrid
               position={[0, gridOffset, 0]}
             />
           </Suspense>
-          <OrbitControls enablePan={false} enableDamping dampingFactor={0.12} maxPolarAngle={Math.PI * 0.49} />
+          <OrbitControls
+            enablePan={false}
+            enableDamping
+            dampingFactor={0.12}
+            maxPolarAngle={Math.PI * 0.49}
+            autoRotate={params.autoSpin}
+            autoRotateSpeed={(params.spinSpeedDeg / 360) * 2 * Math.PI}
+          />
         </Canvas>
 
         <div className="stats-chip">
