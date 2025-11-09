@@ -1,6 +1,7 @@
 import { Suspense, useMemo, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Grid, OrbitControls } from '@react-three/drei';
+import { MOUSE } from 'three';
 import './App.css';
 import { ParametricTower } from './components/canvas/ParametricTower';
 import { TowerControlsPanel } from './components/ui/TowerControlsPanel';
@@ -10,7 +11,6 @@ import type { TowerParameters } from './types/tower';
 const App = () => {
   const [params, setParams] = useState<TowerParameters>(() => createDefaultTowerParameters());
 
-  const totalHeight = useMemo(() => params.floorCount * params.floorHeight, [params.floorCount, params.floorHeight]);
   const gridOffset = useMemo(() => -(params.floorCount * params.floorHeight) * 0.5 - 0.01, [params.floorCount, params.floorHeight]);
 
   const handleReset = () => {
@@ -33,8 +33,8 @@ const App = () => {
               args={[400, 400]}
               sectionSize={5}
               cellSize={0.75}
-              sectionColor="#353535"
-              cellColor="#1f1f1f"
+              sectionColor="#7e848f"
+              cellColor="#4d5159"
               fadeDistance={200}
               fadeStrength={6}
               infiniteGrid
@@ -42,25 +42,15 @@ const App = () => {
             />
           </Suspense>
           <OrbitControls
-            enablePan={false}
+            enablePan
             enableDamping
             dampingFactor={0.12}
             maxPolarAngle={Math.PI * 0.49}
             autoRotate={params.autoSpin}
             autoRotateSpeed={(params.spinSpeedDeg / 360) * 2 * Math.PI}
+            mouseButtons={{ LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN }}
           />
         </Canvas>
-
-        <div className="stats-chip">
-          <div>
-            <p className="eyebrow">Total height</p>
-            <strong>{totalHeight.toFixed(1)} m</strong>
-          </div>
-          <div>
-            <p className="eyebrow">Twist range</p>
-            <strong>{`${Math.round(params.minTwist)} deg -> ${Math.round(params.maxTwist)} deg`}</strong>
-          </div>
-        </div>
       </div>
 
       <TowerControlsPanel params={params} onChange={setParams} onReset={handleReset} />

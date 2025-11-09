@@ -174,24 +174,6 @@ section h2 {
   border-color: rgba(255, 255, 255, 0.4);
 }
 
-.stats-chip {
-  position: absolute;
-  top: 2rem;
-  left: 2rem;
-  display: flex;
-  gap: 2rem;
-  padding: 1rem 1.5rem;
-  border-radius: 999px;
-  background: rgba(6, 9, 20, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
-}
-
-.stats-chip strong {
-  display: block;
-  font-size: 1.1rem;
-}
-
 @media (max-width: 960px) {
   .app-shell {
     flex-direction: column;
@@ -203,8 +185,4 @@ section h2 {
     border-top: 1px solid rgba(255, 255, 255, 0.05);
   }
 
-  .stats-chip {
-    position: static;
-    margin: 1rem;
-  }
 }
