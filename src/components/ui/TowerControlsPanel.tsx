@@ -17,6 +17,9 @@ type TowerControlsPanelProps = {
   onSceneLightingChange: (preset: TowerParameters['sceneLighting']) => void;
   onToggleFacade: () => void;
   facadeEnabled: boolean;
+  onActivateGravity: () => void;
+  onResetGravitySimulation: () => void;
+  gravityActive: boolean;
 };
 
 const easingOptions = [
@@ -50,6 +53,9 @@ export const TowerControlsPanel = ({
   onSceneLightingChange,
   onToggleFacade,
   facadeEnabled,
+  onActivateGravity,
+  onResetGravitySimulation,
+  gravityActive,
 }: TowerControlsPanelProps) => {
   const handleNumberChange =
     (key: keyof TowerParameters) =>
@@ -246,6 +252,18 @@ export const TowerControlsPanel = ({
             value={params.spinSpeedDeg}
             onChange={handleNumberChange('spinSpeedDeg')}
           />
+        </div>
+      </section>
+
+      <section>
+        <h2>Gravity</h2>
+        <div className="gravity-buttons">
+          <button type="button" className="primary-button" disabled={gravityActive} onClick={onActivateGravity}>
+            Activate
+          </button>
+          <button type="button" className="ghost-button" disabled={!gravityActive} onClick={onResetGravitySimulation}>
+            Reset
+          </button>
         </div>
       </section>
 

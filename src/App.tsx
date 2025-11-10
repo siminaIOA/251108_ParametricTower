@@ -6,6 +6,7 @@ import type { ColorRepresentation, Vector3Tuple, WebGLRenderer } from 'three';
 import './App.css';
 import { ParametricTower } from './components/canvas/ParametricTower';
 import { FacadeStructure } from './components/canvas/FacadeStructure';
+import { TowerPhysics } from './components/canvas/TowerPhysics';
 import { TowerControlsPanel } from './components/ui/TowerControlsPanel';
 import { BezierEditor } from './components/ui/BezierEditor';
 import { useTowerGeometry } from './hooks/useTowerGeometry';
@@ -67,6 +68,8 @@ const App = () => {
   const [isBezierEditorOpen, setBezierEditorOpen] = useState(false);
   const [savedStates, setSavedStates] = useState<SavedState[]>([]);
   const [selectedStateId, setSelectedStateId] = useState<number | ''>('');
+  const [gravityState, setGravityState] = useState<'idle' | 'active'>('idle');
+  const [gravitySeed, setGravitySeed] = useState(1);
   const towerGeometry = useTowerGeometry(params);
   const rendererRef = useRef<WebGLRenderer | null>(null);
 
@@ -79,6 +82,8 @@ const App = () => {
 
   const handleReset = () => {
     setParams(createDefaultTowerParameters());
+    setGravityState('idle');
+    setGravitySeed((previous) => previous + 1);
   };
 
   const downloadBlob = useCallback((data: BlobPart, filename: string, type: string) => {
@@ -185,6 +190,16 @@ const App = () => {
     [savedStates, cloneParams],
   );
 
+  const handleActivateGravity = useCallback(() => {
+    setGravitySeed((previous) => previous + 1);
+    setGravityState('active');
+  }, []);
+
+  const handleResetGravitySimulation = useCallback(() => {
+    setGravityState('idle');
+    setGravitySeed((previous) => previous + 1);
+  }, []);
+
   return (
     <div className="app-shell" style={{ backgroundColor: params.backgroundColor }}>
       <div className="canvas-pane">
@@ -218,8 +233,14 @@ const App = () => {
             color={lighting.accent.color}
           />
           <Suspense fallback={null}>
-            <ParametricTower geometry={towerGeometry} />
-            {params.facadeEnabled && <FacadeStructure params={params} />}
+            {gravityState === 'active' ? (
+              <TowerPhysics key={gravitySeed} params={params} seed={gravitySeed} />
+            ) : (
+              <>
+                <ParametricTower geometry={towerGeometry} />
+                {params.facadeEnabled && <FacadeStructure params={params} />}
+              </>
+            )}
             <Grid
               args={[400, 400]}
               sectionSize={5}
@@ -261,6 +282,9 @@ const App = () => {
         onSceneLightingChange={handleSceneLightingChange}
         onToggleFacade={handleToggleFacade}
         facadeEnabled={params.facadeEnabled}
+        onActivateGravity={handleActivateGravity}
+        onResetGravitySimulation={handleResetGravitySimulation}
+        gravityActive={gravityState === 'active'}
       />
 
       <BezierEditor
