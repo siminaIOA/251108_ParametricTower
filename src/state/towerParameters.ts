@@ -1,10 +1,10 @@
 import type { TowerParameters } from '../types/tower';
 
 export const defaultTowerParameters: TowerParameters = {
-  floorCount: 36,
+  floorCount: 20,
   floorHeight: 4,
   baseRadius: 6,
-  floorThickness: 1.2,
+  floorThickness: 0.4,
   floorSegments: 4,
   minScale: 0.65,
   maxScale: 1.25,
