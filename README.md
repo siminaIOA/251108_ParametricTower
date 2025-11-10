@@ -10,8 +10,8 @@ A browser-based playground for designing gradient-driven stacked tower geometrie
 - Snapshot + OBJ export actions with auto-incremented filenames so every capture/download stays organized.
 - Saved state manager to store numbered presets (State 1, State 2, ...) and instantly switch between parameter setups.
 - Scene lighting presets (Studio, Daylight, Sunset, Noir, Cyber), medium-grey background defaults, and a dedicated Background menu with color picker.
-- Motion menu with Auto Spin toggle, Spin deg/s slider (1–100), and tuned orbit/pan/zoom controls for reviewing the tower.
-- Gravity menu powered by @react-three/rapier that swaps in a rigid-body simulation where slabs topple, collide, and settle like Houdini/Maya brick studies—with a Reset button to rebuild the original stack.
+- Motion menu with Auto Spin toggle, Spin deg/s slider (1-100), and tuned orbit/pan/zoom controls for reviewing the tower.
+- Gravity menu powered by @react-three/rapier that swaps in a rigid-body simulation where slabs topple, collide, and settle like Houdini/Maya brick studies-with a Reset button to rebuild the original stack.
 - Refined UI shell with separated scroll areas (scene vs. panel), Apple-like styling, and infinite, fade-blurred ground grid lighting ready for GitHub Pages hosting.
 
 ## Getting Started
@@ -27,15 +27,15 @@ A browser-based playground for designing gradient-driven stacked tower geometrie
 4. Open the provided localhost URL to explore the tower generator.
 
 ## Controls
-- **Structure** – Floors, floor height, thickness, base radius, and polygon segment count.
-- **Scaling gradient** – Min/max scale sliders, easing selector, and optional Bezier graph editor.
-- **Twist gradient** – Base/apex twist sliders and easing selector.
-- **Color gradient** – Bottom/top color pickers, gradient bias slider, and scene-lighting presets.
-- **Background** – Set the scene background color.
-- **Motion** – Toggle Auto Spin, tune Spin deg/s, and rely on orbit/pan/zoom interactions.
-- **Facade Structure** – Toggle white guide curves that trace every slab corner.
-- **Export & States** – Export OBJ (with vertex colors), capture PNG snapshots, save/load tower states.
-- **Gravity** – Activate a Rapier-powered rigid-body collapse simulation and Reset back to the static tower.
+- **Structure** - Floors, floor height, thickness, base radius, and polygon segment count.
+- **Scaling gradient** - Min/max scale sliders, easing selector, and optional Bezier graph editor.
+- **Twist gradient** - Base/apex twist sliders and easing selector.
+- **Color gradient** - Bottom/top color pickers, gradient bias slider, and scene-lighting presets.
+- **Background** - Set the scene background color.
+- **Motion** - Toggle Auto Spin, tune Spin deg/s, and rely on orbit/pan/zoom interactions.
+- **Facade Structure** - Toggle white guide curves that trace every slab corner.
+- **Export & States** - Export OBJ (with vertex colors), capture PNG snapshots, save/load tower states.
+- **Gravity** - Activate a Rapier-powered rigid-body collapse simulation and Reset back to the static tower.
 
 ## Deployment
 1. **Build locally**
@@ -55,6 +55,6 @@ A browser-based playground for designing gradient-driven stacked tower geometrie
    git commit -m "deploy: gh-pages"
    git push origin gh-pages
    ```
-   Finally, point the repo’s Pages settings to the deployment branch you used.
+   Finally, point the repo's Pages settings to the deployment branch you used.
 3. **Live demo**
    - https://siminaioa.github.io/251108_ParametricTower/

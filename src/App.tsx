@@ -2,7 +2,8 @@ import { Suspense, useCallback, useMemo, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Grid, OrbitControls } from '@react-three/drei';
 import { MOUSE } from 'three';
-import type { ColorRepresentation, Vector3Tuple, WebGLRenderer } from 'three';
+import type { BufferGeometry, ColorRepresentation, Vector3Tuple, WebGLRenderer } from 'three';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import './App.css';
 import { ParametricTower } from './components/canvas/ParametricTower';
 import { FacadeStructure } from './components/canvas/FacadeStructure';
@@ -10,6 +11,7 @@ import { TowerPhysics } from './components/canvas/TowerPhysics';
 import { TowerControlsPanel } from './components/ui/TowerControlsPanel';
 import { BezierEditor } from './components/ui/BezierEditor';
 import { useTowerGeometry } from './hooks/useTowerGeometry';
+import { useFacadeGeometry } from './hooks/useFacadeGeometry';
 import { serializeGeometryAsOBJ } from './utils/exporters';
 import { createDefaultTowerParameters } from './state/towerParameters';
 import type { TowerParameters } from './types/tower';
@@ -71,6 +73,7 @@ const App = () => {
   const [gravityState, setGravityState] = useState<'idle' | 'active'>('idle');
   const [gravitySeed, setGravitySeed] = useState(1);
   const towerGeometry = useTowerGeometry(params);
+  const facadeGeometry = useFacadeGeometry(params);
   const rendererRef = useRef<WebGLRenderer | null>(null);
 
   const gridOffset = useMemo(() => -(params.floorCount * params.floorHeight) * 0.5 - 0.01, [params.floorCount, params.floorHeight]);
@@ -103,12 +106,24 @@ const App = () => {
   );
 
   const handleExportObj = useCallback(() => {
-    if (!towerGeometry) {
+    const geometries: BufferGeometry[] = [];
+    if (towerGeometry) {
+      geometries.push(towerGeometry.clone());
+    }
+    if (params.facadeEnabled && facadeGeometry) {
+      geometries.push(facadeGeometry.clone());
+    }
+    if (geometries.length === 0) {
       return;
     }
-    const result = serializeGeometryAsOBJ(towerGeometry);
+    const merged = geometries.length === 1 ? geometries[0] : mergeGeometries(geometries, true);
+    if (!merged) {
+      return;
+    }
+    const result = serializeGeometryAsOBJ(merged);
     downloadBlob(result, 'parametric_tower.obj', 'text/plain');
-  }, [towerGeometry, downloadBlob]);
+    merged.dispose();
+  }, [towerGeometry, facadeGeometry, params.facadeEnabled, downloadBlob]);
 
   const snapshotCounterRef = useRef(1);
 
@@ -166,6 +181,13 @@ const App = () => {
     setParams((previous) => ({
       ...previous,
       facadeEnabled: !previous.facadeEnabled,
+    }));
+  }, []);
+
+  const handleFacadeProfileChange = useCallback((value: number) => {
+    setParams((previous) => ({
+      ...previous,
+      facadeProfile: Math.min(0.2, Math.max(0.1, value)),
     }));
   }, []);
 
@@ -238,7 +260,7 @@ const App = () => {
             ) : (
               <>
                 <ParametricTower geometry={towerGeometry} />
-                {params.facadeEnabled && <FacadeStructure params={params} />}
+                {params.facadeEnabled && <FacadeStructure geometry={facadeGeometry} />}
               </>
             )}
             <Grid
@@ -285,6 +307,7 @@ const App = () => {
         onActivateGravity={handleActivateGravity}
         onResetGravitySimulation={handleResetGravitySimulation}
         gravityActive={gravityState === 'active'}
+        onFacadeProfileChange={handleFacadeProfileChange}
       />
 
       <BezierEditor

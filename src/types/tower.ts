@@ -35,4 +35,5 @@ export interface TowerParameters {
   autoSpin: boolean;
   spinSpeedDeg: number;
   facadeEnabled: boolean;
+  facadeProfile: number;
 }

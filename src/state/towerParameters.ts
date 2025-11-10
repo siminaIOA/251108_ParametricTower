@@ -31,6 +31,7 @@ export const defaultTowerParameters: TowerParameters = {
   autoSpin: false,
   spinSpeedDeg: 6,
   facadeEnabled: false,
+  facadeProfile: 0.1,
 };
 
 export const createDefaultTowerParameters = (): TowerParameters => ({
@@ -50,4 +51,5 @@ export const createDefaultTowerParameters = (): TowerParameters => ({
   autoSpin: defaultTowerParameters.autoSpin,
   spinSpeedDeg: defaultTowerParameters.spinSpeedDeg,
   facadeEnabled: defaultTowerParameters.facadeEnabled,
+  facadeProfile: defaultTowerParameters.facadeProfile,
 });

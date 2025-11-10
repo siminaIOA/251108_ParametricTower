@@ -20,6 +20,7 @@ type TowerControlsPanelProps = {
   onActivateGravity: () => void;
   onResetGravitySimulation: () => void;
   gravityActive: boolean;
+  onFacadeProfileChange: (value: number) => void;
 };
 
 const easingOptions = [
@@ -56,6 +57,7 @@ export const TowerControlsPanel = ({
   onActivateGravity,
   onResetGravitySimulation,
   gravityActive,
+  onFacadeProfileChange,
 }: TowerControlsPanelProps) => {
   const handleNumberChange =
     (key: keyof TowerParameters) =>
@@ -228,6 +230,26 @@ export const TowerControlsPanel = ({
           >
             Facade Structure
           </button>
+        </div>
+        <div className="control-field">
+          <label htmlFor="facadeProfile">
+            Profile size <span>{params.facadeProfile.toFixed(3)} m</span>
+          </label>
+          <input
+            id="facadeProfile"
+            type="range"
+            min={0.1}
+            max={0.2}
+            step={0.005}
+            value={params.facadeProfile}
+            onChange={(event) => {
+              const value = Number(event.currentTarget.value);
+              if (Number.isNaN(value)) {
+                return;
+              }
+              onFacadeProfileChange(value);
+            }}
+          />
         </div>
       </section>
 
