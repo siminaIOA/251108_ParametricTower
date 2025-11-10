@@ -18,6 +18,8 @@ type FloorInstance = {
   thickness: number;
   color: string;
   jitter: { position: [number, number]; tilt: number };
+  initialLinearVelocity: [number, number, number];
+  initialAngularVelocity: [number, number, number];
 };
 
 const bottomColor = new Color();
@@ -71,6 +73,17 @@ export const TowerPhysics = ({ params, seed }: TowerPhysicsProps) => {
       const lateralJitter = (random() - 0.5) * 0.15 * (1 + index / floorCount);
       const perpendicularJitter = (random() - 0.5) * 0.15 * (1 + index / floorCount);
       const tiltJitter = (random() - 0.5) * 0.1;
+      const slideStrength = 1.5 + index * 0.12;
+      const linearVelocity: [number, number, number] = [
+        (random() - 0.5) * slideStrength,
+        -0.2 + (random() - 0.5) * 0.15,
+        (random() - 0.5) * slideStrength,
+      ];
+      const angularVelocity: [number, number, number] = [
+        (random() - 0.5) * 0.6,
+        (random() - 0.5) * 0.8,
+        (random() - 0.5) * 0.6,
+      ];
 
       instances.push({
         id: index,
@@ -83,6 +96,8 @@ export const TowerPhysics = ({ params, seed }: TowerPhysicsProps) => {
           position: [lateralJitter, perpendicularJitter],
           tilt: tiltJitter,
         },
+        initialLinearVelocity: linearVelocity,
+        initialAngularVelocity: angularVelocity,
       });
     }
 
@@ -100,7 +115,7 @@ export const TowerPhysics = ({ params, seed }: TowerPhysicsProps) => {
 
   return (
     <Physics gravity={[0, -20, 0]} timeStep="vary">
-      <RigidBody type="fixed" friction={1} restitution={0.1}>
+      <RigidBody type="fixed" friction={0.3} restitution={0.03}>
         <CuboidCollider args={[200, 0.5, 200]} position={[0, basePlaneY - 0.5, 0]} />
       </RigidBody>
       {floors.map((floor) => (
@@ -109,11 +124,13 @@ export const TowerPhysics = ({ params, seed }: TowerPhysicsProps) => {
           colliders={false}
           position={[floor.position[0], floor.position[1], floor.position[2]]}
           rotation={[floor.jitter.tilt, floor.twist, -floor.jitter.tilt]}
-          friction={0.8}
-          restitution={0.05}
-          linearDamping={0.15}
-          angularDamping={0.35}
+          friction={0.25}
+          restitution={0.03}
+          linearDamping={0.02}
+          angularDamping={0.18}
           canSleep={false}
+          linearVelocity={floor.initialLinearVelocity}
+          angularVelocity={floor.initialAngularVelocity}
         >
           <CylinderCollider args={[floor.thickness / 2, Math.max(0.2, floor.radius)]} />
           <mesh
