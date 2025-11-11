@@ -32,6 +32,14 @@ export const defaultTowerParameters: TowerParameters = {
   spinSpeedDeg: 6,
   facadeEnabled: false,
   facadeProfile: 0.1,
+  facadeTweenCount: 5,
+  facadeTweenCurve: {
+    enabled: false,
+    handles: [
+      { x: 0.25, y: 0.15 },
+      { x: 0.75, y: 0.85 },
+    ],
+  },
 };
 
 export const createDefaultTowerParameters = (): TowerParameters => ({
@@ -52,4 +60,12 @@ export const createDefaultTowerParameters = (): TowerParameters => ({
   spinSpeedDeg: defaultTowerParameters.spinSpeedDeg,
   facadeEnabled: defaultTowerParameters.facadeEnabled,
   facadeProfile: defaultTowerParameters.facadeProfile,
+  facadeTweenCount: defaultTowerParameters.facadeTweenCount,
+  facadeTweenCurve: {
+    enabled: defaultTowerParameters.facadeTweenCurve.enabled,
+    handles: defaultTowerParameters.facadeTweenCurve.handles.map((handle) => ({ ...handle })) as [
+      TowerParameters['facadeTweenCurve']['handles'][number],
+      TowerParameters['facadeTweenCurve']['handles'][number],
+    ],
+  },
 });

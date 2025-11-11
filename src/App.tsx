@@ -68,12 +68,13 @@ const lightingPresets: Record<TowerParameters['sceneLighting'], LightingPreset> 
 const App = () => {
   const [params, setParams] = useState<TowerParameters>(() => createDefaultTowerParameters());
   const [isBezierEditorOpen, setBezierEditorOpen] = useState(false);
+  const [isTweenBezierOpen, setTweenBezierOpen] = useState(false);
   const [savedStates, setSavedStates] = useState<SavedState[]>([]);
   const [selectedStateId, setSelectedStateId] = useState<number | ''>('');
   const [gravityState, setGravityState] = useState<'idle' | 'active'>('idle');
   const [gravitySeed, setGravitySeed] = useState(1);
   const towerGeometry = useTowerGeometry(params);
-  const facadeGeometry = useFacadeGeometry(params);
+  const { rails: facadeRailGeometry, tweens: facadeTweenGeometry } = useFacadeGeometry(params);
   const rendererRef = useRef<WebGLRenderer | null>(null);
 
   const gridOffset = useMemo(() => -(params.floorCount * params.floorHeight) * 0.5 - 0.01, [params.floorCount, params.floorHeight]);
@@ -110,8 +111,8 @@ const App = () => {
     if (towerGeometry) {
       geometries.push(towerGeometry.clone());
     }
-    if (params.facadeEnabled && facadeGeometry) {
-      geometries.push(facadeGeometry.clone());
+    if (params.facadeEnabled && facadeRailGeometry) {
+      geometries.push(facadeRailGeometry.clone());
     }
     if (geometries.length === 0) {
       return;
@@ -123,7 +124,7 @@ const App = () => {
     const result = serializeGeometryAsOBJ(merged);
     downloadBlob(result, 'parametric_tower.obj', 'text/plain');
     merged.dispose();
-  }, [towerGeometry, facadeGeometry, params.facadeEnabled, downloadBlob]);
+  }, [towerGeometry, facadeRailGeometry, params.facadeEnabled, downloadBlob]);
 
   const snapshotCounterRef = useRef(1);
 
@@ -188,6 +189,36 @@ const App = () => {
     setParams((previous) => ({
       ...previous,
       facadeProfile: Math.min(0.2, Math.max(0.1, value)),
+    }));
+  }, []);
+
+  const handleFacadeTweenChange = useCallback((value: number) => {
+    setParams((previous) => ({
+      ...previous,
+      facadeTweenCount: Math.max(1, Math.min(30, Math.round(value))),
+    }));
+  }, []);
+
+  const handleToggleTweenBezier = useCallback((enabled: boolean) => {
+    setParams((previous) => ({
+      ...previous,
+      facadeTweenCurve: {
+        ...previous.facadeTweenCurve,
+        enabled,
+      },
+    }));
+    if (!enabled) {
+      setTweenBezierOpen(false);
+    }
+  }, []);
+
+  const handleTweenBezierHandlesChange = useCallback((handles: BezierHandles) => {
+    setParams((previous) => ({
+      ...previous,
+      facadeTweenCurve: {
+        ...previous.facadeTweenCurve,
+        handles,
+      },
     }));
   }, []);
 
@@ -260,7 +291,9 @@ const App = () => {
             ) : (
               <>
                 <ParametricTower geometry={towerGeometry} />
-                {params.facadeEnabled && <FacadeStructure geometry={facadeGeometry} />}
+                {params.facadeEnabled && (
+                  <FacadeStructure railGeometry={facadeRailGeometry} tweenGeometry={facadeTweenGeometry} />
+                )}
               </>
             )}
             <Grid
@@ -308,13 +341,24 @@ const App = () => {
         onResetGravitySimulation={handleResetGravitySimulation}
         gravityActive={gravityState === 'active'}
         onFacadeProfileChange={handleFacadeProfileChange}
+        onFacadeTweenChange={handleFacadeTweenChange}
+        onToggleTweenBezier={handleToggleTweenBezier}
+        onOpenTweenBezier={() => setTweenBezierOpen(true)}
       />
 
       <BezierEditor
         open={isBezierEditorOpen}
+        title="Scale Gradient Curve"
         handles={params.scaleBezier.handles}
         onClose={() => setBezierEditorOpen(false)}
         onChange={handleBezierHandlesChange}
+      />
+      <BezierEditor
+        open={isTweenBezierOpen}
+        title="Tween Rail Curve"
+        handles={params.facadeTweenCurve.handles}
+        onClose={() => setTweenBezierOpen(false)}
+        onChange={handleTweenBezierHandlesChange}
       />
     </div>
   );

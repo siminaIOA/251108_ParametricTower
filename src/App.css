@@ -261,7 +261,7 @@ section h2 {
 .bezier-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(3, 4, 11, 0.75);
+  background: rgba(3, 4, 11, 0.45);
   z-index: 20;
 }
 
@@ -289,8 +289,12 @@ section h2 {
   aspect-ratio: 1 / 1;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
-  padding: 0.25rem;
+  padding: 0;
   background: radial-gradient(circle at top, rgba(255, 255, 255, 0.12), rgba(10, 14, 22, 0.9));
+}
+
+.bezier-canvas svg {
+  display: block;
 }
 
 @media (max-width: 960px) {

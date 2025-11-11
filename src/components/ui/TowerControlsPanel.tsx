@@ -21,6 +21,9 @@ type TowerControlsPanelProps = {
   onResetGravitySimulation: () => void;
   gravityActive: boolean;
   onFacadeProfileChange: (value: number) => void;
+  onFacadeTweenChange: (value: number) => void;
+  onToggleTweenBezier: (enabled: boolean) => void;
+  onOpenTweenBezier: () => void;
 };
 
 const easingOptions = [
@@ -58,6 +61,9 @@ export const TowerControlsPanel = ({
   onResetGravitySimulation,
   gravityActive,
   onFacadeProfileChange,
+  onFacadeTweenChange,
+  onToggleTweenBezier,
+  onOpenTweenBezier,
 }: TowerControlsPanelProps) => {
   const handleNumberChange =
     (key: keyof TowerParameters) =>
@@ -250,6 +256,49 @@ export const TowerControlsPanel = ({
               onFacadeProfileChange(value);
             }}
           />
+        </div>
+        <div className="control-field">
+          <label htmlFor="facadeTweenCount">
+            Tween rails <span>{params.facadeTweenCount}</span>
+          </label>
+          <input
+            id="facadeTweenCount"
+            type="range"
+            min={1}
+            max={30}
+            step={1}
+            value={params.facadeTweenCount}
+            onChange={(event) => {
+              const value = Number(event.currentTarget.value);
+              if (Number.isNaN(value)) {
+                return;
+              }
+              onFacadeTweenChange(value);
+            }}
+          />
+        </div>
+        <div className="control-field">
+          <label htmlFor="tweenGraph">Tween Graph</label>
+          <div className="graph-toggle">
+            <button
+              id="tweenGraph"
+              type="button"
+              className={`ghost-button ${params.facadeTweenCurve.enabled ? 'active' : ''}`}
+              onClick={() => {
+                if (!params.facadeTweenCurve.enabled) {
+                  onToggleTweenBezier(true);
+                }
+                onOpenTweenBezier();
+              }}
+            >
+              {params.facadeTweenCurve.enabled ? 'Edit Graph' : 'Use Graph'}
+            </button>
+            {params.facadeTweenCurve.enabled && (
+              <button type="button" className="ghost-button subtle" onClick={() => onToggleTweenBezier(false)}>
+                Disable
+              </button>
+            )}
+          </div>
         </div>
       </section>
 

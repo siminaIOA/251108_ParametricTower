@@ -36,4 +36,9 @@ export interface TowerParameters {
   spinSpeedDeg: number;
   facadeEnabled: boolean;
   facadeProfile: number;
+  facadeTweenCount: number;
+  facadeTweenCurve: {
+    enabled: boolean;
+    handles: [BezierHandle, BezierHandle];
+  };
 }

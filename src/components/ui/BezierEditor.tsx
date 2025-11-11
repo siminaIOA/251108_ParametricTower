@@ -3,6 +3,7 @@ import type { BezierHandle } from '../../types/tower';
 
 type BezierEditorProps = {
   open: boolean;
+  title: string;
   handles: [BezierHandle, BezierHandle];
   onChange: (handles: [BezierHandle, BezierHandle]) => void;
   onClose: () => void;
@@ -10,7 +11,7 @@ type BezierEditorProps = {
 
 const clamp = (value: number, min = 0, max = 1) => Math.min(Math.max(value, min), max);
 
-export const BezierEditor = ({ open, handles, onChange, onClose }: BezierEditorProps) => {
+export const BezierEditor = ({ open, title, handles, onChange, onClose }: BezierEditorProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const [dragIndex, setDragIndex] = useState<number | null>(null);
@@ -28,8 +29,11 @@ export const BezierEditor = ({ open, handles, onChange, onClose }: BezierEditorP
       if (!bounds) {
         return;
       }
-      const x = clamp((event.clientX - bounds.left) / bounds.width);
-      const y = clamp(1 - (event.clientY - bounds.top) / bounds.height);
+      const inset = 16;
+      const normalizedX = (event.clientX - bounds.left - inset) / (bounds.width - inset * 2);
+      const normalizedY = 1 - (event.clientY - bounds.top - inset) / (bounds.height - inset * 2);
+      const x = clamp(normalizedX);
+      const y = clamp(normalizedY);
       const next = handles.map((handle, index) => (index === dragIndex ? { x, y } : handle)) as [
         BezierHandle,
         BezierHandle,
@@ -78,9 +82,11 @@ export const BezierEditor = ({ open, handles, onChange, onClose }: BezierEditorP
   }
 
   const size = 280;
+  const inset = 16;
+  const graphSize = size - inset * 2;
   const toSvg = (handle: BezierHandle) => ({
-    x: handle.x * size,
-    y: (1 - handle.y) * size,
+    x: inset + handle.x * graphSize,
+    y: inset + (1 - handle.y) * graphSize,
   });
 
   const cp1 = toSvg(handles[0]);
@@ -115,7 +121,7 @@ export const BezierEditor = ({ open, handles, onChange, onClose }: BezierEditorP
             panelRef.current?.releasePointerCapture(event.pointerId);
           }}
         >
-          <p>Scale Gradient Curve</p>
+          <p>{title}</p>
           <button
             type="button"
             className="ghost-button"
@@ -135,14 +141,20 @@ export const BezierEditor = ({ open, handles, onChange, onClose }: BezierEditorP
                 <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
               </pattern>
             </defs>
-            <rect width={size} height={size} fill="url(#bezier-grid)" />
+            <rect
+              x={inset}
+              y={inset}
+              width={graphSize}
+              height={graphSize}
+              fill="url(#bezier-grid)"
+            />
             <polyline
-              points={`0,${size} ${cp1.x},${cp1.y} ${cp2.x},${cp2.y} ${size},0`}
+              points={`${inset},${inset + graphSize} ${cp1.x},${cp1.y} ${cp2.x},${cp2.y} ${inset + graphSize},${inset}`}
               fill="none"
               stroke="rgba(255,255,255,0.15)"
             />
             <path
-              d={`M0,${size} C${cp1.x},${cp1.y} ${cp2.x},${cp2.y} ${size},0`}
+              d={`M${inset},${inset + graphSize} C${cp1.x},${cp1.y} ${cp2.x},${cp2.y} ${inset + graphSize},${inset}`}
               fill="none"
               stroke="#000"
               strokeWidth={3}
@@ -164,8 +176,8 @@ export const BezierEditor = ({ open, handles, onChange, onClose }: BezierEditorP
                 />
               </g>
             ))}
-            <circle cx={0} cy={size} r={6} fill="#111" stroke="#fff" strokeWidth={2} />
-            <circle cx={size} cy={0} r={6} fill="#111" stroke="#fff" strokeWidth={2} />
+            <circle cx={inset} cy={inset + graphSize} r={6} fill="#111" stroke="#fff" strokeWidth={2} />
+            <circle cx={inset + graphSize} cy={inset} r={6} fill="#111" stroke="#fff" strokeWidth={2} />
           </svg>
         </div>
       </div>

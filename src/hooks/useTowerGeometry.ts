@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react';
-import { BufferAttribute, BufferGeometry, Color, CylinderGeometry, Matrix4, Quaternion, Vector3 } from 'three';
+import { BufferAttribute, BufferGeometry, Color, Matrix4, Quaternion, Vector3 } from 'three';
+import { createPolygonBaseGeometry } from '../utils/polygon';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import type { TowerParameters } from '../types/tower';
 import { applyEasingCurve } from '../utils/easing';
@@ -25,7 +26,7 @@ export const useTowerGeometry = (params: TowerParameters): BufferGeometry | null
     topColor.set(params.gradientColors.top);
 
     const radialSegments = Math.max(3, Math.floor(params.floorSegments ?? 32));
-    const baseGeometry = new CylinderGeometry(1, 1, 1, radialSegments, 1, false);
+    const { geometry: baseGeometry } = createPolygonBaseGeometry(radialSegments);
     const towerOffset = -(floorCount * params.floorHeight) * 0.5;
     const geometries: BufferGeometry[] = [];
 
