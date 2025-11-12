@@ -1,18 +1,19 @@
-# 251108_ParametricTower
+Ôªø# 251108_ParametricTower
 
 A browser-based playground for designing gradient-driven stacked tower geometries. The app renders procedural floor slabs in WebGL (React Three Fiber + Three.js) and lets you experiment with twisting, scale envelopes, heights, color ramps, lighting, exports, and physics-driven collapse simulations to prototype expressive skyscraper massings in real time.
 
 ## Features
 - React + Vite + TypeScript scaffold with hot reload, linting, and OBJ exporting that retains vertex colors.
 - Procedural tower mesh with per-floor twisting, scaling, gradient coloring, and configurable polygon segments (triangles through decagons).
-- Facade sweep controls that extrude rectangular mullions along the tower curves, with adjustable profile thickness and OBJ-ready vertex colors.
-- Draggable Bezier curve editor for sculpting the scale gradient envelope via a floating UI window.
+- Facade sweep controls aligned to true polygon corners, with adjustable profile thickness and OBJ-ready vertex colors.
+- Tween rail system driven by its own Bezier graph so you can redistribute intermediate facade curves between structural rails.
+- Dual Bezier editors (scale + tween) in floating panels with lighter scene dimming and corner-snapped anchors.
 - Snapshot + OBJ export actions with auto-incremented filenames for quick capture/sharing.
-- Saved state manager to store numbered presets (State 1, State 2, ...) and switch between them instantly.
+- Saved state manager to store numbered presets (State 1, State 2, ‚Ä¶) and switch between them instantly.
 - Scene lighting presets (Studio, Daylight, Sunset, Noir, Cyber) plus a Background tab for custom scene colors.
-- Motion tab with Auto Spin toggle, Spin deg/s slider (1ñ100), and tuned orbit/pan/zoom camera controls.
+- Motion tab with Auto Spin toggle, Spin deg/s slider (1‚Äì100), and tuned orbit/pan/zoom camera controls.
 - Gravity menu powered by @react-three/rapier that collapses slabs with sliding dynamics, windy nudges, and reset-to-static toggle.
-- Refined UI shell with separated scroll regions, ìParametric Towerî header, Apple-inspired styling, and infinite fade-blurred ground grid.
+- Refined UI shell with separated scroll regions, ‚ÄúParametric Tower‚Äù header, Apple-inspired styling, and infinite fade-blurred ground grid.
 
 ## Getting Started
 1. Install Node.js 18+ (LTS recommended).
@@ -27,15 +28,15 @@ A browser-based playground for designing gradient-driven stacked tower geometrie
 4. Open the provided localhost URL to explore the tower generator.
 
 ## Controls
-- **Structure** ñ Floors, floor height, thickness, base radius, and polygon segment count.
-- **Scaling gradient** ñ Min/max scale sliders, easing selector, and optional Bezier graph editor.
-- **Twist gradient** ñ Base/apex twist sliders and easing selector.
-- **Color gradient** ñ Bottom/top color pickers, gradient bias slider, and scene-lighting presets.
-- **Background** ñ Set the canvas backdrop color.
-- **Motion** ñ Toggle Auto Spin, adjust Spin deg/s, and rely on orbit/pan/zoom interactions.
-- **Facade Structure** ñ Toggle sweeps and fine-tune the rectangular profile size.
-- **Export & States** ñ Export OBJ (with vertex colors), capture PNG snapshots, save/load tower states.
-- **Gravity** ñ Activate the Rapier-driven collapse simulation and Reset back to the static tower.
+- **Structure** ‚Äì Floors, floor height, thickness, base radius, and polygon segment count.
+- **Scaling gradient** ‚Äì Min/max scale sliders, easing selector, optional Bezier graph editor.
+- **Twist gradient** ‚Äì Base/apex twist sliders and easing selector.
+- **Color gradient** ‚Äì Bottom/top color pickers, gradient bias slider, and scene-lighting presets.
+- **Background** ‚Äì Set the canvas backdrop color.
+- **Motion** ‚Äì Toggle Auto Spin, adjust Spin deg/s, and rely on orbit/pan/zoom interactions.
+- **Facade Structure** ‚Äì Toggle sweeps, fine-tune profile size, and sculpt tween spacing with the dedicated graph.
+- **Export & States** ‚Äì Export OBJ (with vertex colors), capture PNG snapshots, save/load tower states.
+- **Gravity** ‚Äì Activate the Rapier-driven collapse simulation and reset to rebuild the static tower.
 
 ## Deployment
 1. **Build locally**
@@ -55,6 +56,6 @@ A browser-based playground for designing gradient-driven stacked tower geometrie
    git commit -m "deploy: gh-pages"
    git push origin gh-pages
    `
-   Finally, point the repo's Pages settings to the deployment branch you used.
+   Finally, point the repo‚Äôs Pages settings to the deployment branch you used.
 3. **Live demo**
    - https://siminaioa.github.io/251108_ParametricTower/

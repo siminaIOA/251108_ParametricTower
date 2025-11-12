@@ -77,11 +77,28 @@ const App = () => {
   const { rails: facadeRailGeometry, tweens: facadeTweenGeometry } = useFacadeGeometry(params);
   const rendererRef = useRef<WebGLRenderer | null>(null);
 
-  const gridOffset = useMemo(() => -(params.floorCount * params.floorHeight) * 0.5 - 0.01, [params.floorCount, params.floorHeight]);
-  const spinTarget = useMemo<[number, number, number]>(
-    () => [0, -(params.floorCount * params.floorHeight) * 0.5 + params.floorHeight * 0.5, 0],
+  const gridOffset = useMemo(
+    () => -(params.floorCount * params.floorHeight) * 0.5 - 0.01,
     [params.floorCount, params.floorHeight],
   );
+  const spinTarget = useMemo<[number, number, number]>(() => [0, 0, 0], []);
+  const cameraSettings = useMemo(() => {
+    const towerHeight = params.floorCount * params.floorHeight;
+    const towerRadius = params.baseRadius * params.maxScale;
+    const margin = Math.max(4, towerHeight * 0.08, towerRadius * 0.25);
+    const halfHeight = towerHeight * 0.5 + margin;
+    const radiusWithMargin = towerRadius + margin;
+    const boundingRadius = Math.sqrt(halfHeight * halfHeight + radiusWithMargin * radiusWithMargin);
+    const fovDeg = 45;
+    const fovRad = (Math.PI / 180) * fovDeg;
+    const distance = boundingRadius / Math.sin(fovRad / 2);
+    const diag = distance / Math.sqrt(2);
+    const position: [number, number, number] = [diag, halfHeight, diag];
+    return {
+      position,
+      fov: fovDeg,
+    };
+  }, [params.baseRadius, params.floorCount, params.floorHeight, params.maxScale]);
   const lighting = lightingPresets[params.sceneLighting] ?? lightingPresets.studio;
 
   const handleReset = () => {
@@ -257,7 +274,7 @@ const App = () => {
     <div className="app-shell" style={{ backgroundColor: params.backgroundColor }}>
       <div className="canvas-pane">
         <Canvas
-          camera={{ position: [18, 20, 28], fov: 45 }}
+          camera={cameraSettings}
           shadows
           gl={{ preserveDrawingBuffer: true }}
           onCreated={({ gl }) => {
