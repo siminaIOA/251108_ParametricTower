@@ -277,7 +277,7 @@ export const TowerControlsPanel = ({
             id="facadeTweenCount"
             type="range"
             min={1}
-            max={35}
+            max={40}
             step={1}
             value={params.facadeTweenCount}
             onChange={(event) => {
@@ -297,7 +297,7 @@ export const TowerControlsPanel = ({
             id="facadeTween2Count"
             type="range"
             min={1}
-            max={35}
+            max={40}
             step={1}
             value={params.facadeTween2Count}
             onChange={(event) => {
@@ -372,7 +372,7 @@ export const TowerControlsPanel = ({
             id="pinchRadius"
             type="range"
             min={0}
-            max={20}
+            max={15}
             step={0.1}
             value={params.pinchSpread.radius}
             onChange={(event) => {

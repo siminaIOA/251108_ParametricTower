@@ -217,14 +217,14 @@ const App = () => {
   const handleFacadeTweenChange = useCallback((value: number) => {
     setParams((previous) => ({
       ...previous,
-      facadeTweenCount: Math.max(1, Math.min(35, Math.round(value))),
+      facadeTweenCount: Math.max(1, Math.min(40, Math.round(value))),
     }));
   }, []);
 
   const handleFacadeTween2Change = useCallback((value: number) => {
     setParams((previous) => ({
       ...previous,
-      facadeTween2Count: Math.max(1, Math.min(35, Math.round(value))),
+      facadeTween2Count: Math.max(1, Math.min(40, Math.round(value))),
     }));
   }, []);
 
@@ -243,7 +243,7 @@ const App = () => {
       ...previous,
       pinchSpread: {
         ...previous.pinchSpread,
-        radius: Math.max(0, Math.min(20, value)),
+        radius: Math.max(0, Math.min(15, value)),
       },
     }));
   }, []);
