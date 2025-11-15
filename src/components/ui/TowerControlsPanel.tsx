@@ -27,6 +27,9 @@ type TowerControlsPanelProps = {
   onOpenTweenBezier: () => void;
   onToggleTween2Bezier: (enabled: boolean) => void;
   onOpenTween2Bezier: () => void;
+  onTogglePinchSpread: () => void;
+  onPinchRadiusChange: (value: number) => void;
+  onPinchStrengthChange: (value: number) => void;
 };
 
 const easingOptions = [
@@ -70,6 +73,9 @@ export const TowerControlsPanel = ({
   onOpenTweenBezier,
   onToggleTween2Bezier,
   onOpenTween2Bezier,
+  onTogglePinchSpread,
+  onPinchRadiusChange,
+  onPinchStrengthChange,
 }: TowerControlsPanelProps) => {
   const handleNumberChange =
     (key: keyof TowerParameters) =>
@@ -271,7 +277,7 @@ export const TowerControlsPanel = ({
             id="facadeTweenCount"
             type="range"
             min={1}
-            max={30}
+            max={35}
             step={1}
             value={params.facadeTweenCount}
             onChange={(event) => {
@@ -291,7 +297,7 @@ export const TowerControlsPanel = ({
             id="facadeTween2Count"
             type="range"
             min={1}
-            max={10}
+            max={35}
             step={1}
             value={params.facadeTween2Count}
             onChange={(event) => {
@@ -348,6 +354,55 @@ export const TowerControlsPanel = ({
               </button>
             )}
           </div>
+        </div>
+        <div className="control-field">
+          <button
+            type="button"
+            className={`primary-button facade-button ${params.pinchSpread.enabled ? 'active' : ''}`}
+            onClick={onTogglePinchSpread}
+          >
+            Pinch &amp; Spread
+          </button>
+        </div>
+        <div className="control-field">
+          <label htmlFor="pinchRadius">
+            Radius <span>{params.pinchSpread.radius.toFixed(2)} m</span>
+          </label>
+          <input
+            id="pinchRadius"
+            type="range"
+            min={0}
+            max={20}
+            step={0.1}
+            value={params.pinchSpread.radius}
+            onChange={(event) => {
+              const value = Number(event.currentTarget.value);
+              if (Number.isNaN(value)) {
+                return;
+              }
+              onPinchRadiusChange(value);
+            }}
+          />
+        </div>
+        <div className="control-field">
+          <label htmlFor="pinchStrength">
+            Strength <span>{params.pinchSpread.strength.toFixed(2)}</span>
+          </label>
+          <input
+            id="pinchStrength"
+            type="range"
+            min={-1}
+            max={1}
+            step={0.01}
+            value={params.pinchSpread.strength}
+            onChange={(event) => {
+              const value = Number(event.currentTarget.value);
+              if (Number.isNaN(value)) {
+                return;
+              }
+              onPinchStrengthChange(value);
+            }}
+          />
         </div>
       </section>
 

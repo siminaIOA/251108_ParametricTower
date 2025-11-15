@@ -48,6 +48,16 @@ export const defaultTowerParameters: TowerParameters = {
       { x: 0.75, y: 0.85 },
     ],
   },
+  pinchSpread: {
+    enabled: false,
+    radius: 4,
+    strength: 0,
+    attractors: [
+      { x: 6, y: 2, z: 0 },
+      { x: -6, y: 6, z: 0 },
+      { x: 0, y: 4, z: 6 },
+    ],
+  },
 };
 
 export const createDefaultTowerParameters = (): TowerParameters => ({
@@ -83,5 +93,11 @@ export const createDefaultTowerParameters = (): TowerParameters => ({
       TowerParameters['facadeTween2Curve']['handles'][number],
       TowerParameters['facadeTween2Curve']['handles'][number],
     ],
+  },
+  pinchSpread: {
+    enabled: defaultTowerParameters.pinchSpread.enabled,
+    radius: defaultTowerParameters.pinchSpread.radius,
+    strength: defaultTowerParameters.pinchSpread.strength,
+    attractors: defaultTowerParameters.pinchSpread.attractors.map((a) => ({ ...a })),
   },
 });

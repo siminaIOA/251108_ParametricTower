@@ -3,11 +3,13 @@ import { Canvas } from '@react-three/fiber';
 import { Grid, OrbitControls } from '@react-three/drei';
 import { MOUSE } from 'three';
 import type { BufferGeometry, ColorRepresentation, Vector3Tuple, WebGLRenderer } from 'three';
+import { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import './App.css';
 import { ParametricTower } from './components/canvas/ParametricTower';
 import { FacadeStructure } from './components/canvas/FacadeStructure';
 import { TowerPhysics } from './components/canvas/TowerPhysics';
+import { PinchAttractors } from './components/canvas/PinchAttractors';
 import { TowerControlsPanel } from './components/ui/TowerControlsPanel';
 import { BezierEditor } from './components/ui/BezierEditor';
 import { useTowerGeometry } from './hooks/useTowerGeometry';
@@ -78,6 +80,7 @@ const App = () => {
   const { rails: facadeRailGeometry, tweens: facadeTweenGeometry, floorLoops: facadeLoopGeometry } =
     useFacadeGeometry(params);
   const rendererRef = useRef<WebGLRenderer | null>(null);
+  const orbitRef = useRef<OrbitControlsImpl | null>(null);
 
   const gridOffset = useMemo(
     () => -(params.floorCount * params.floorHeight) * 0.5 - 0.01,
@@ -214,15 +217,58 @@ const App = () => {
   const handleFacadeTweenChange = useCallback((value: number) => {
     setParams((previous) => ({
       ...previous,
-      facadeTweenCount: Math.max(1, Math.min(30, Math.round(value))),
+      facadeTweenCount: Math.max(1, Math.min(35, Math.round(value))),
     }));
   }, []);
 
   const handleFacadeTween2Change = useCallback((value: number) => {
     setParams((previous) => ({
       ...previous,
-      facadeTween2Count: Math.max(1, Math.min(10, Math.round(value))),
+      facadeTween2Count: Math.max(1, Math.min(35, Math.round(value))),
     }));
+  }, []);
+
+  const handleTogglePinchSpread = useCallback(() => {
+    setParams((previous) => ({
+      ...previous,
+      pinchSpread: {
+        ...previous.pinchSpread,
+        enabled: !previous.pinchSpread.enabled,
+      },
+    }));
+  }, []);
+
+  const handlePinchRadiusChange = useCallback((value: number) => {
+    setParams((previous) => ({
+      ...previous,
+      pinchSpread: {
+        ...previous.pinchSpread,
+        radius: Math.max(0, Math.min(20, value)),
+      },
+    }));
+  }, []);
+
+  const handlePinchStrengthChange = useCallback((value: number) => {
+    setParams((previous) => ({
+      ...previous,
+      pinchSpread: {
+        ...previous.pinchSpread,
+        strength: Math.max(-1, Math.min(1, value)),
+      },
+    }));
+  }, []);
+
+  const handlePinchAttractorChange = useCallback((index: number, position: { x: number; y: number; z: number }) => {
+    setParams((previous) => {
+      const attractors = previous.pinchSpread.attractors.map((attr, idx) => (idx === index ? position : attr));
+      return {
+        ...previous,
+        pinchSpread: {
+          ...previous.pinchSpread,
+          attractors,
+        },
+      };
+    });
   }, []);
 
   const handleToggleTweenBezier = useCallback((enabled: boolean) => {
@@ -347,6 +393,14 @@ const App = () => {
                     tween2Geometry={facadeLoopGeometry}
                   />
                 )}
+                {params.pinchSpread.enabled && (
+                  <PinchAttractors
+                    attractors={params.pinchSpread.attractors}
+                    enabled={params.pinchSpread.enabled}
+                    orbitControlsRef={orbitRef}
+                    onChange={handlePinchAttractorChange}
+                  />
+                )}
               </>
             )}
             <Grid
@@ -362,6 +416,7 @@ const App = () => {
             />
           </Suspense>
           <OrbitControls
+            ref={orbitRef}
             enablePan
             enableDamping
             dampingFactor={0.12}
@@ -398,6 +453,9 @@ const App = () => {
         onFacadeTween2Change={handleFacadeTween2Change}
         onToggleTweenBezier={handleToggleTweenBezier}
         onOpenTweenBezier={() => setTweenBezierOpen(true)}
+        onTogglePinchSpread={handleTogglePinchSpread}
+        onPinchRadiusChange={handlePinchRadiusChange}
+        onPinchStrengthChange={handlePinchStrengthChange}
         onToggleTween2Bezier={handleToggleTween2Bezier}
         onOpenTween2Bezier={() => setTween2BezierOpen(true)}
       />

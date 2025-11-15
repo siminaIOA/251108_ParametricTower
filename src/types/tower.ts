@@ -46,4 +46,10 @@ export interface TowerParameters {
     enabled: boolean;
     handles: [BezierHandle, BezierHandle];
   };
+  pinchSpread: {
+    enabled: boolean;
+    radius: number;
+    strength: number;
+    attractors: { x: number; y: number; z: number }[];
+  };
 }
