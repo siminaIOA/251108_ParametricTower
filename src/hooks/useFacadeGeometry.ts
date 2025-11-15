@@ -20,13 +20,14 @@ const segmentColor = new Color();
 type FacadeGeometryResult = {
   rails: BufferGeometry | null;
   tweens: BufferGeometry | null;
+  floorLoops: BufferGeometry | null;
 };
 
 export const useFacadeGeometry = (params: TowerParameters): FacadeGeometryResult => {
   const result = useMemo<FacadeGeometryResult>(() => {
     const { floorCount } = params;
     if (floorCount < 2) {
-      return { rails: null, tweens: null };
+      return { rails: null, tweens: null, floorLoops: null };
     }
 
     const segmentCount = Math.max(3, Math.floor(params.floorSegments));
@@ -35,8 +36,10 @@ export const useFacadeGeometry = (params: TowerParameters): FacadeGeometryResult
     const { corners: baseCorners } = createPolygonBaseGeometry(segmentCount);
     const railGeometries: BufferGeometry[] = [];
     const tweenPositions: number[] = [];
+    const loopPositions: number[] = [];
     const profileSize = Math.min(0.2, Math.max(0.1, params.facadeProfile ?? 0.1));
     const tweenCount = Math.max(1, Math.floor(params.facadeTweenCount ?? 1));
+    const loopCount = Math.max(1, Math.floor(params.facadeTween2Count ?? 1));
 
     bottomColor.set(params.gradientColors.bottom);
     topColor.set(params.gradientColors.top);
@@ -120,6 +123,10 @@ export const useFacadeGeometry = (params: TowerParameters): FacadeGeometryResult
       params.facadeTweenCurve.enabled
         ? cubicBezierY(value, params.facadeTweenCurve.handles[0], params.facadeTweenCurve.handles[1])
         : value;
+    const applyTween2Curve = (value: number) =>
+      params.facadeTween2Curve?.enabled
+        ? cubicBezierY(value, params.facadeTween2Curve.handles[0], params.facadeTween2Curve.handles[1])
+        : value;
 
     for (let segmentIndex = 0; segmentIndex < segmentCount; segmentIndex += 1) {
       const railPoints = ringPoints.map((ring) => ring[segmentIndex]);
@@ -146,6 +153,27 @@ export const useFacadeGeometry = (params: TowerParameters): FacadeGeometryResult
       }
     }
 
+    const appendLoop = (points: [number, number, number][]) => {
+      for (let index = 0; index < points.length; index += 1) {
+        const current = points[index];
+        const next = points[(index + 1) % points.length];
+        loopPositions.push(current[0], current[1], current[2], next[0], next[1], next[2]);
+      }
+    };
+
+    for (let floorIndex = 0; floorIndex < floorCount - 1; floorIndex += 1) {
+      const currentRing = ringPoints[floorIndex];
+      const nextRing = ringPoints[floorIndex + 1];
+      for (let loopIndex = 1; loopIndex <= loopCount; loopIndex += 1) {
+        const factor = applyTween2Curve(loopIndex / (loopCount + 1));
+        const loopPoints: [number, number, number][] = currentRing.map(([sx, sy, sz], segmentIndex) => {
+          const [ex, ey, ez] = nextRing[segmentIndex];
+          return [sx + (ex - sx) * factor, sy + (ey - sy) * factor, sz + (ez - sz) * factor];
+        });
+        appendLoop(loopPoints);
+      }
+    }
+
     baseGeometry.dispose();
 
     const rails = railGeometries.length > 0 ? mergeGeometries(railGeometries, false) ?? null : null;
@@ -156,13 +184,19 @@ export const useFacadeGeometry = (params: TowerParameters): FacadeGeometryResult
         ? new BufferGeometry().setAttribute('position', new BufferAttribute(new Float32Array(tweenPositions), 3))
         : null;
 
-    return { rails, tweens };
+    const floorLoops =
+      loopPositions.length > 0
+        ? new BufferGeometry().setAttribute('position', new BufferAttribute(new Float32Array(loopPositions), 3))
+        : null;
+
+    return { rails, tweens, floorLoops };
   }, [params]);
 
   useEffect(
     () => () => {
       result.rails?.dispose();
       result.tweens?.dispose();
+      result.floorLoops?.dispose();
     },
     [result],
   );

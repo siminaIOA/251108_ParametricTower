@@ -3,14 +3,14 @@ import type { TowerParameters } from '../types/tower';
 export const defaultTowerParameters: TowerParameters = {
   floorCount: 20,
   floorHeight: 4,
-  baseRadius: 6,
+  baseRadius: 4,
   floorThickness: 0.4,
   floorSegments: 4,
-  minScale: 0.65,
-  maxScale: 1.25,
+  minScale: 1.29,
+  maxScale: 1.3,
   minTwist: 0,
   maxTwist: 210,
-  gradientBias: 0.5,
+  gradientBias: 0.35,
   scaleBezier: {
     enabled: false,
     handles: [
@@ -24,16 +24,24 @@ export const defaultTowerParameters: TowerParameters = {
     twist: 'easeOut',
   },
   gradientColors: {
-    bottom: '#03a9f4',
-    top: '#ffb347',
+    bottom: '#0064ff',
+    top: '#ffffff',
   },
   backgroundColor: '#080a14',
   autoSpin: false,
   spinSpeedDeg: 6,
-  facadeEnabled: false,
-  facadeProfile: 0.1,
-  facadeTweenCount: 5,
+  facadeEnabled: true,
+  facadeProfile: 0.25,
+  facadeTweenCount: 10,
+  facadeTween2Count: 1,
   facadeTweenCurve: {
+    enabled: false,
+    handles: [
+      { x: 0.25, y: 0.15 },
+      { x: 0.75, y: 0.85 },
+    ],
+  },
+  facadeTween2Curve: {
     enabled: false,
     handles: [
       { x: 0.25, y: 0.15 },
@@ -61,11 +69,19 @@ export const createDefaultTowerParameters = (): TowerParameters => ({
   facadeEnabled: defaultTowerParameters.facadeEnabled,
   facadeProfile: defaultTowerParameters.facadeProfile,
   facadeTweenCount: defaultTowerParameters.facadeTweenCount,
+  facadeTween2Count: defaultTowerParameters.facadeTween2Count,
   facadeTweenCurve: {
     enabled: defaultTowerParameters.facadeTweenCurve.enabled,
     handles: defaultTowerParameters.facadeTweenCurve.handles.map((handle) => ({ ...handle })) as [
       TowerParameters['facadeTweenCurve']['handles'][number],
       TowerParameters['facadeTweenCurve']['handles'][number],
+    ],
+  },
+  facadeTween2Curve: {
+    enabled: defaultTowerParameters.facadeTween2Curve.enabled,
+    handles: defaultTowerParameters.facadeTween2Curve.handles.map((handle) => ({ ...handle })) as [
+      TowerParameters['facadeTween2Curve']['handles'][number],
+      TowerParameters['facadeTween2Curve']['handles'][number],
     ],
   },
 });

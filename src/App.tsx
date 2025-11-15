@@ -69,12 +69,14 @@ const App = () => {
   const [params, setParams] = useState<TowerParameters>(() => createDefaultTowerParameters());
   const [isBezierEditorOpen, setBezierEditorOpen] = useState(false);
   const [isTweenBezierOpen, setTweenBezierOpen] = useState(false);
+  const [isTween2BezierOpen, setTween2BezierOpen] = useState(false);
   const [savedStates, setSavedStates] = useState<SavedState[]>([]);
   const [selectedStateId, setSelectedStateId] = useState<number | ''>('');
   const [gravityState, setGravityState] = useState<'idle' | 'active'>('idle');
   const [gravitySeed, setGravitySeed] = useState(1);
   const towerGeometry = useTowerGeometry(params);
-  const { rails: facadeRailGeometry, tweens: facadeTweenGeometry } = useFacadeGeometry(params);
+  const { rails: facadeRailGeometry, tweens: facadeTweenGeometry, floorLoops: facadeLoopGeometry } =
+    useFacadeGeometry(params);
   const rendererRef = useRef<WebGLRenderer | null>(null);
 
   const gridOffset = useMemo(
@@ -216,6 +218,13 @@ const App = () => {
     }));
   }, []);
 
+  const handleFacadeTween2Change = useCallback((value: number) => {
+    setParams((previous) => ({
+      ...previous,
+      facadeTween2Count: Math.max(1, Math.min(10, Math.round(value))),
+    }));
+  }, []);
+
   const handleToggleTweenBezier = useCallback((enabled: boolean) => {
     setParams((previous) => ({
       ...previous,
@@ -229,11 +238,34 @@ const App = () => {
     }
   }, []);
 
+  const handleToggleTween2Bezier = useCallback((enabled: boolean) => {
+    setParams((previous) => ({
+      ...previous,
+      facadeTween2Curve: {
+        ...previous.facadeTween2Curve,
+        enabled,
+      },
+    }));
+    if (!enabled) {
+      setTween2BezierOpen(false);
+    }
+  }, []);
+
   const handleTweenBezierHandlesChange = useCallback((handles: BezierHandles) => {
     setParams((previous) => ({
       ...previous,
       facadeTweenCurve: {
         ...previous.facadeTweenCurve,
+        handles,
+      },
+    }));
+  }, []);
+
+  const handleTween2BezierHandlesChange = useCallback((handles: BezierHandles) => {
+    setParams((previous) => ({
+      ...previous,
+      facadeTween2Curve: {
+        ...previous.facadeTween2Curve,
         handles,
       },
     }));
@@ -309,7 +341,11 @@ const App = () => {
               <>
                 <ParametricTower geometry={towerGeometry} />
                 {params.facadeEnabled && (
-                  <FacadeStructure railGeometry={facadeRailGeometry} tweenGeometry={facadeTweenGeometry} />
+                  <FacadeStructure
+                    railGeometry={facadeRailGeometry}
+                    tweenGeometry={facadeTweenGeometry}
+                    tween2Geometry={facadeLoopGeometry}
+                  />
                 )}
               </>
             )}
@@ -359,8 +395,11 @@ const App = () => {
         gravityActive={gravityState === 'active'}
         onFacadeProfileChange={handleFacadeProfileChange}
         onFacadeTweenChange={handleFacadeTweenChange}
+        onFacadeTween2Change={handleFacadeTween2Change}
         onToggleTweenBezier={handleToggleTweenBezier}
         onOpenTweenBezier={() => setTweenBezierOpen(true)}
+        onToggleTween2Bezier={handleToggleTween2Bezier}
+        onOpenTween2Bezier={() => setTween2BezierOpen(true)}
       />
 
       <BezierEditor
@@ -376,6 +415,13 @@ const App = () => {
         handles={params.facadeTweenCurve.handles}
         onClose={() => setTweenBezierOpen(false)}
         onChange={handleTweenBezierHandlesChange}
+      />
+      <BezierEditor
+        open={isTween2BezierOpen}
+        title="Tween Rails 2 Curve"
+        handles={params.facadeTween2Curve.handles}
+        onClose={() => setTween2BezierOpen(false)}
+        onChange={handleTween2BezierHandlesChange}
       />
     </div>
   );

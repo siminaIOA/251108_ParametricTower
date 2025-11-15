@@ -22,8 +22,11 @@ type TowerControlsPanelProps = {
   gravityActive: boolean;
   onFacadeProfileChange: (value: number) => void;
   onFacadeTweenChange: (value: number) => void;
+  onFacadeTween2Change: (value: number) => void;
   onToggleTweenBezier: (enabled: boolean) => void;
   onOpenTweenBezier: () => void;
+  onToggleTween2Bezier: (enabled: boolean) => void;
+  onOpenTween2Bezier: () => void;
 };
 
 const easingOptions = [
@@ -62,8 +65,11 @@ export const TowerControlsPanel = ({
   gravityActive,
   onFacadeProfileChange,
   onFacadeTweenChange,
+  onFacadeTween2Change,
   onToggleTweenBezier,
   onOpenTweenBezier,
+  onToggleTween2Bezier,
+  onOpenTween2Bezier,
 }: TowerControlsPanelProps) => {
   const handleNumberChange =
     (key: keyof TowerParameters) =>
@@ -278,7 +284,27 @@ export const TowerControlsPanel = ({
           />
         </div>
         <div className="control-field">
-          <label htmlFor="tweenGraph">Tween Graph</label>
+          <label htmlFor="facadeTween2Count">
+            Tween rails 2 <span>{params.facadeTween2Count}</span>
+          </label>
+          <input
+            id="facadeTween2Count"
+            type="range"
+            min={1}
+            max={10}
+            step={1}
+            value={params.facadeTween2Count}
+            onChange={(event) => {
+              const value = Number(event.currentTarget.value);
+              if (Number.isNaN(value)) {
+                return;
+              }
+              onFacadeTween2Change(value);
+            }}
+          />
+        </div>
+        <div className="control-field">
+          <label htmlFor="tweenGraph">Tween Rails Graph</label>
           <div className="graph-toggle">
             <button
               id="tweenGraph"
@@ -295,6 +321,29 @@ export const TowerControlsPanel = ({
             </button>
             {params.facadeTweenCurve.enabled && (
               <button type="button" className="ghost-button subtle" onClick={() => onToggleTweenBezier(false)}>
+                Disable
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="control-field">
+          <label htmlFor="tweenGraph2">Tween Rails 2 Graph</label>
+          <div className="graph-toggle">
+            <button
+              id="tweenGraph2"
+              type="button"
+              className={`ghost-button ${params.facadeTween2Curve.enabled ? 'active' : ''}`}
+              onClick={() => {
+                if (!params.facadeTween2Curve.enabled) {
+                  onToggleTween2Bezier(true);
+                }
+                onOpenTween2Bezier();
+              }}
+            >
+              {params.facadeTween2Curve.enabled ? 'Edit Graph' : 'Use Graph'}
+            </button>
+            {params.facadeTween2Curve.enabled && (
+              <button type="button" className="ghost-button subtle" onClick={() => onToggleTween2Bezier(false)}>
                 Disable
               </button>
             )}
@@ -374,8 +423,8 @@ export const TowerControlsPanel = ({
           <input
             id="minScale"
             type="range"
-            min={0.25}
-            max={params.maxScale - 0.01}
+            min={0.7}
+            max={Math.min(params.maxScale - 0.01, 1.29)}
             step={0.01}
             value={params.minScale}
             onChange={handleRangeChange('minScale')}
@@ -388,7 +437,7 @@ export const TowerControlsPanel = ({
           <input
             id="maxScale"
             type="range"
-            min={params.minScale + 0.01}
+            min={Math.max(0.8, params.minScale + 0.01)}
             max={1.75}
             step={0.01}
             value={params.maxScale}

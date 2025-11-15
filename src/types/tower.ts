@@ -37,7 +37,12 @@ export interface TowerParameters {
   facadeEnabled: boolean;
   facadeProfile: number;
   facadeTweenCount: number;
+  facadeTween2Count: number;
   facadeTweenCurve: {
+    enabled: boolean;
+    handles: [BezierHandle, BezierHandle];
+  };
+  facadeTween2Curve: {
     enabled: boolean;
     handles: [BezierHandle, BezierHandle];
   };
